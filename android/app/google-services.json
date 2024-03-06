@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "567948579243",
+    "project_id": "fbaroundmarket",
+    "storage_bucket": "fbaroundmarket.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:567948579243:android:fc8afac3b96aefbc3242ee",
+        "android_client_info": {
+          "package_name": "com.example.fb_around_market"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "567948579243-c82mh34i1trlbm8rmeb6nrbapmkthkuv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fb_around_market",
+            "certificate_hash": "35c71f13f3b6e6b98bb6020f97c8bda8fc71ca75"
+          }
+        },
+        {
+          "client_id": "567948579243-bkq1di6q1u305h0lboq9k26j87e4g30a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMXPydsQl4sgaTKKCokQkKdl9J4U1JQt0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "567948579243-bkq1di6q1u305h0lboq9k26j87e4g30a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

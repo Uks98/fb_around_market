@@ -40,6 +40,7 @@ dependencies:
   firebase_core: ^2.25.5
   firebase_auth:
   cloud_firestore: ^4.13.6
+  firebase_storage: ^11.5.6
   #상태관리
   flutter_riverpod: ^2.4.9
   #로그인 관리
@@ -47,14 +48,21 @@ dependencies:
   #이미지 관리
   image_picker: ^1.0.5
   camera: ^0.10.5+3
+  flutter_image_compress: ^2.1.0
   #json si
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
   #지도
   flutter_naver_map: ^1.1.2
+  geolocator: 
   #생산성
   velocity_x:
-
+  #통신
+  http:
+  #토스트 메세지
+  fluttertoast: ^8.2.4
+  # 라우터
+  go_router: ^12.1.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
