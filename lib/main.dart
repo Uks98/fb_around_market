@@ -1,3 +1,4 @@
+import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,7 +31,10 @@ class MyApp extends StatelessWidget {
     GoRoute(
         path: '/signUp', builder: (context, state) => SignUpUserProfileSetPage(),
       routes: [
-        GoRoute(path: "signUpName", builder: (context, state) => SignUpAddNamePage(),)
+        GoRoute(path: "signUpName/:profile", builder: (context, state) => SignUpAddNamePage(
+          userProfile: state.pathParameters["profile"],
+        ),),
+        GoRoute(path: "password", builder: (context, state) => SignUpAddPassWordPage(),),
       ],
     ),
   ],
