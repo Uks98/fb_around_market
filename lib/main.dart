@@ -1,4 +1,5 @@
 import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
+import 'package:fb_around_market/main_page/s_main_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'login/s_login_integrated_page.dart';
 import 'login/signup/s_sign_up_seq1_name.dart';
 import 'login/signup/s_user_profile_set_page.dart';
-
+String? userCredentialWithGoogle;
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -31,12 +32,25 @@ class MyApp extends StatelessWidget {
     GoRoute(
         path: '/signUp', builder: (context, state) => SignUpUserProfileSetPage(),
       routes: [
-        GoRoute(path: "signUpName/:profile", builder: (context, state) => SignUpAddNamePage(
-          userProfile: state.pathParameters["profile"],
-        ),),
-        GoRoute(path: "password", builder: (context, state) => SignUpAddPassWordPage(),),
+        //네임드에는 파라미터 못받음 , named push 사용할 경우에도 path에 사용
+        GoRoute(path: "signUpName/:userProfile",
+          name: "signUpName",
+          builder: (context, state) => SignUpAddNamePage(
+          userProfile: state.pathParameters["userProfile"],
+        ),
+        ),
+        GoRoute(path: "password/:userId/:userImage",
+          name: "password",
+          builder: (context, state) => SignUpAddPassWordPage(
+            userImage: state.pathParameters["userImage"],
+            userId: state.pathParameters["userId"] ?? "이름 없음",
+
+          ),),
       ],
     ),
+    GoRoute(
+        name: "main",
+        path: '/', builder: (context, state) => MainPage()),
   ],
 
   );
@@ -44,6 +58,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         fontFamily: "nexon1",

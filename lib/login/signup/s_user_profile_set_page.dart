@@ -26,7 +26,7 @@ class _SignUpUserProfileSetPageState extends State<SignUpUserProfileSetPage> wit
   final ComplexImageLogicBox _imageCompress = ComplexImageLogicBox();
   final ToastNotification _toastNotification = ToastNotification();
   String? profileImage;
-  void saveUserProfileImage()async{
+  Future<void> saveUserProfileImage()async{
     final storage = FirebaseStorage.instance;
     final storageRef = storage.ref("profile/").child("${DateTime.now().microsecondsSinceEpoch}_${image?.name ?? "??"}.jpg");
     final compressImage =  await _imageCompress.imageCompressList(imageData!);
@@ -91,8 +91,9 @@ class _SignUpUserProfileSetPageState extends State<SignUpUserProfileSetPage> wit
                  //final db = FirebaseFirestore.instance;
                  //await db.collection("aaaa").add({"title" : "aaa"});
                 if(imageData != null){
-                saveUserProfileImage();
-                context.go("/signUp/signUpName/$profileImage");
+                 await saveUserProfileImage();
+                 context.goNamed("signUpName",pathParameters: {"userProfile" : profileImage!});
+
                 }else{
                   _toastNotification.loginToast("사진을 추가해주세요");
                 }

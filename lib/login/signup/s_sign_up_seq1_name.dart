@@ -9,7 +9,7 @@ class SignUpAddNamePage extends StatelessWidget {
   final String? userProfile;
   @override
   Widget build(BuildContext context) {
-  print("users ${userProfile}");
+    print(userProfile);
     TextEditingController _idController = TextEditingController();
     final _formKey = GlobalKey<FormState>();
     return Scaffold(
@@ -63,7 +63,10 @@ class SignUpAddNamePage extends StatelessWidget {
                 if(_formKey.currentState!.validate()){
                   _formKey.currentState!.save();
                 if(context.mounted){
-                  context.go("/signUp/password");
+                  context.pushNamed("password",
+                      pathParameters: {
+                    "userId" : _idController.text,
+                    "userImage":userProfile ?? "",});
                 }
                 }
 
