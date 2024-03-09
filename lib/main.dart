@@ -1,7 +1,9 @@
+import 'package:fb_around_market/logic/map/all_place_map.dart';
 import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 import 'package:fb_around_market/main_page/s_main_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,6 +24,7 @@ void main() async{
       measurementId: 'G-FKZJQSFTKC',
     )
   );
+  await NaverMapSdk.instance.initialize(clientId: 'fyu8vwn1ij');
   runApp(ProviderScope(child: MyApp()));
 }
 

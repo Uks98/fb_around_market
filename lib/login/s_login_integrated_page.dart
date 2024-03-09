@@ -57,8 +57,9 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            HeightBox(40),
+            const HeightBox(100),
             "스트릿 \n   푸드 파인더".text.fontWeight(FontWeight.w700).fontFamily("title").size(60).color(Colors.white).make(),
             Form(
               key: _formKey,
@@ -67,7 +68,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                   Padding(
                     padding: const EdgeInsets.only(left: 40.0,right: 40.0),
                     child: TextFormField(
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       cursorColor: Colors.white,
                       controller: emailTextController,
                       //밑즐만 하얗게
@@ -93,7 +94,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                   Padding(
                     padding: const EdgeInsets.only(left: 40.0,right: 40.0),
                     child: TextFormField(
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                       cursorColor: Colors.grey,
                       controller: pwdTextController,
                       decoration: const InputDecoration(
