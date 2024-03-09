@@ -67,18 +67,18 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                   Padding(
                     padding: const EdgeInsets.only(left: 40.0,right: 40.0),
                     child: TextFormField(
-
+                        style: TextStyle(color: Colors.white),
                       cursorColor: Colors.white,
                       controller: emailTextController,
+                      //밑즐만 하얗게
                       decoration: const InputDecoration(
-                      enabledBorder: OutlineInputBorder(
+                        labelStyle: TextStyle(
+                          color: Colors.white, // 원하는 색상으로 변경
+                        ),
+                      enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.white)
                       ),
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.white, // 기본 테두리 색상
-                          ),
-                        ),
+
                         labelText: "아이디",
                       ),
                       validator: (value) {
@@ -93,12 +93,19 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                   Padding(
                     padding: const EdgeInsets.only(left: 40.0,right: 40.0),
                     child: TextFormField(
+                      style: TextStyle(color: Colors.white),
                       cursorColor: Colors.grey,
                       controller: pwdTextController,
                       decoration: const InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white)
+                        ),
                         fillColor: Colors.grey,
-                        border: UnderlineInputBorder(),
                         labelText: "비밀번호",
+                        labelStyle: TextStyle(
+                          color: Colors.white, // 원하는 색상으로 변경
+                        ),
+
                       ),
                       obscureText: true,
                       keyboardType: TextInputType.visiblePassword,
@@ -159,7 +166,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
             }
             ),
             TextButton(
-              onPressed: () => context.push("/signUp"),
+              onPressed: () => context.goNamed("setUserProfile"),
               child: "계정이 없나요? 회원가입".text.color(Colors.white).make(),
             ),
           ],

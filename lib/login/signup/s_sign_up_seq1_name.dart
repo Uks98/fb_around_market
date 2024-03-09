@@ -19,7 +19,7 @@ class SignUpAddNamePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               HeightBox(30),
-              "아이디를 입력하세요"
+              "이메일을를 입력하세요"
                   .text
                   .fontWeight(FontWeight.w700)
                   .size(bigFontSize + 10)
@@ -34,9 +34,11 @@ class SignUpAddNamePage extends StatelessWidget {
                   child: TextFormField(
                     validator: (value){
                       if(value == null || value.isEmpty){
-                        return "아이디를 입력해주세요";
+                        return "이메일을 입력해주세요";
                       }else if(value.length < 5){
-                        return "아이디를 더 길게 작성해주세요";
+                        return "이메일을 더 길게 작성해주세요";
+                      }else if( !value.contains("@")){
+                        return "@를 포함한 유효한 이메일을 입력해주세요";
                       }
                       return null;
                     },
@@ -45,7 +47,7 @@ class SignUpAddNamePage extends StatelessWidget {
                    autofocus: true,
                    cursorColor: Colors.grey,
                    decoration: const InputDecoration(
-                     hintText: "아이디 입력",
+                     hintText: "이메일 입력",
                      border: InputBorder.none,
                      focusedBorder: InputBorder.none,
                      enabledBorder: InputBorder.none,
@@ -55,7 +57,7 @@ class SignUpAddNamePage extends StatelessWidget {
                                  ).pOnly(left: 15,right: 10),
                 ),
                  const HeightBox(20),
-                 "스트릿 푸드 파인더에서 고유한 아이디를 만드세요 \n한번 만들면 변경할 수 없어요.".text.color(Colors.grey[700]).size(smallFontSize).make().pOnly(left: 15)
+                 "스트릿 푸드 파인더에서 고유한 이메일을 만드세요 \n한번 만들면 변경할 수 없어요.".text.color(Colors.grey[700]).size(smallFontSize).make().pOnly(left: 15)
                              ],
                            ),
               const HeightBox(150),
@@ -63,7 +65,7 @@ class SignUpAddNamePage extends StatelessWidget {
                 if(_formKey.currentState!.validate()){
                   _formKey.currentState!.save();
                 if(context.mounted){
-                  context.pushNamed("password",
+                  context.goNamed("password",
                       pathParameters: {
                     "userId" : _idController.text,
                     "userImage":userProfile ?? "",});

@@ -4,6 +4,7 @@ import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class SignUpAddPassWordPage extends StatelessWidget with FireBaseInitialize {
@@ -108,13 +109,14 @@ class SignUpAddPassWordPage extends StatelessWidget with FireBaseInitialize {
                                 userId.trim(), _passwordController.text.trim());
                             if (result) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("회원가입 성공")),
-                                );
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("회원가입 성공")),);
+                                  signUp(userId, _passwordController.text);
+                                  context.goNamed("login");
                               }
                             }
-                            signUp(userId, _passwordController.text);
-                            // context.go("/signUp/password");
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("회원가입에 실패했습니다.")),
+                            );
                           }
                         }
                       },
