@@ -10,6 +10,7 @@ double bigWidth = 20.0;
 double smallHeight = 5.0;
 double normalHeight = 10.0;
 double bigHeight = 20.0;
+double biggestHeight = 20.0;
 
 double smallFontSize = 10.0;
 double normalFontSize = 16.0;

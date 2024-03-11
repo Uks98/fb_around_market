@@ -22,7 +22,6 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
     final _formKey = GlobalKey<FormState>();
     TextEditingController emailTextController = TextEditingController();
     TextEditingController pwdTextController = TextEditingController();
-    final toastMsg = ToastNotification();
 
     Future<UserCredential?> emailSignIn(String email, String password) async {
       try {
@@ -31,12 +30,12 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
         return credential;
       } on FirebaseAuthException catch (e) {
         if (e.code == "user-not-found") {
-          toastMsg.loginToast("일치하는 사용자가 없습니다 😅");
+          ToastNotification.warningToast("일치하는 사용자가 없습니다 😅");
         } else if (e.code == "wrong-password") {
-          toastMsg.loginToast("비밀번호가 일치하지 않습니다 😅");
+          ToastNotification.warningToast("비밀번호가 일치하지 않습니다 😅");
         }
       } catch (e) {
-        toastMsg.loginToast("로그인 정보를 확인해주세요 😅");
+        ToastNotification.warningToast("로그인 정보를 확인해주세요 😅");
       }
     }
     Future<UserCredential?> signInWithGoogle()async{
@@ -162,7 +161,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                 await signInWithGoogle();
                 context.pushNamed("main");
               }else{
-                toastMsg.loginToast("구글 로그인에 실패했습니다");
+                ToastNotification.warningToast("구글 로그인에 실패했습니다");
               }
             }
             ),

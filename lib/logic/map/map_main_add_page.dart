@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/color/color_box.dart';
+import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
+import 'package:fb_around_market/notification_widget/w_toast_notification.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -14,34 +16,32 @@ class UserMarkerSelectPage extends StatefulWidget {
   State<UserMarkerSelectPage> createState() => _UserMarkerSelectPageState();
 }
 
-class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> {
-  final marker = NMarker(
-      id: 'test', position: const NLatLng(37.506932467450326, 127.02578661133796));
+class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBaseInitialize{
+  final marker = NMarker(id: 'sample1', position: const NLatLng(37.506932467450326, 127.02578661133796)); //샘플링 마커
 
-  //final marker2 = NMarker(id: 'test2',position: NLatLng(37.506932467450326, 37.506932467450326));
-  AddressName addressName = AddressName();
+  AddressName addressName = AddressName(); // 카카오 api를 통해 마커 표시 주소 불러오는 클래스의 인스턴스
   NaverMapController? naverMapController;
   String? addressNameText = "";
   double? convertGPSX;
   double? convertGPSY;
-  void convertLocationData(double x, double y) async {
+  void convertLocationData(double? x, double? y) async {
     addressNameText = (await addressName.getMapList(
         context: context,
         x: x ?? 127.02578661133796,
-        y: y ?? 37.506932467450326));
+        y: y ?? 37.506932467450326
+    ));
     setState(() {});
   }
 
   Stream<QuerySnapshot> streamMapMarker() {
-    final db = FirebaseFirestore.instance;
-    return db.collection("mapMarker").snapshots();
+    return firestoreInit.collection("mapMarker").snapshots();
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    convertLocationData(127.02578661133796, 37.506932467450326);
+    convertLocationData(127.02578661133796, 37.506932467450326); // 내 위치 주소로 변경해야함
   }
 
   @override
@@ -61,7 +61,7 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> {
               convertLocationData(y.longitude, y.latitude);
               setState(() {
                 markers.add(NMarker(
-                    id: 'test3', position: NLatLng(y.latitude, y.longitude)));
+                    id: 'userMarker', position: NLatLng(y.latitude, y.longitude)));
                 naverMapController?.addOverlayAll(markers);
               });
             },
@@ -93,38 +93,11 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> {
                         .fontWeight(FontWeight.w700)
                         .make()
                         .pOnly(top: 15, left: 20),
-                    addressPopupWidget(addressNameText: addressNameText).pOnly(
+                    AddressPopupWidget(addressNameText: addressNameText).pOnly(
                       top: 70,
                       left: 20,
                     ), // 마커 표시시 위치 정보가 보여 지는 팝업
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: mediaWidthSize - 40,
-                          height: 50,
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: baseColor,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onPressed: () {
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                        builder: (context) => MarkerAddPage(
-                                              gpsX: convertGPSY!,
-                                              gpsY: convertGPSX!,
-                                              placeAddress:
-                                                  addressNameText!,
-                                              uid: "aaa",
-                                            )));
-                              },
-                              child: "이 위치로 지정하기".text.color(Colors.white).fontWeight(FontWeight.w700).make(),),),
-                        
-                      ],
-                    ).pOnly(top: 150,left: 20),
+                    AddLocationMarkerButton(mediaWidthSize: mediaWidthSize, convertGPSY: convertGPSY, convertGPSX: convertGPSX, addressNameText: addressNameText).pOnly(top: 150,left: 20),
                   ],
                 ),
               ],
@@ -137,8 +110,57 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> {
   }
 }
 
-class addressPopupWidget extends StatelessWidget {
-  const addressPopupWidget({
+class AddLocationMarkerButton extends StatelessWidget {
+  const AddLocationMarkerButton({
+    super.key,
+    required this.mediaWidthSize,
+    required this.convertGPSY,
+    required this.convertGPSX,
+    required this.addressNameText,
+  });
+
+  final double mediaWidthSize;
+  final double? convertGPSY;
+  final double? convertGPSX;
+  final String? addressNameText;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: mediaWidthSize - 40,
+          height: 50,
+          child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: baseColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(
+                        builder: (context) {
+                            return MarkerAddPage(
+                              gpsX: convertGPSY ?? 127.02578661133796,
+                              gpsY: convertGPSX  ?? 37.506932467450326,
+                              placeAddress:
+                              addressNameText!,
+                              uid: "aaa",
+                            );
+                        } ,),);
+              },
+              child: "이 위치로 지정하기".text.color(Colors.white).fontWeight(FontWeight.w700).make(),),),
+
+      ],
+    );
+  }
+}
+
+class AddressPopupWidget extends StatelessWidget {
+  const AddressPopupWidget({
     super.key,
     required this.addressNameText,
   });

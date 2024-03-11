@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fb_around_market/color/color_box.dart';
+import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 import 'market_add_data/map_marker_data.dart';
 
@@ -39,7 +40,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
   final List<bool> _selections = List.generate(3, (_) => false);
   final uidHub = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
-
+  final TextEditingController _marketNameController = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -48,8 +49,8 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
 
   @override
   Widget build(BuildContext context) {
-    final marker =
-        NMarker(id: 'test', position: NLatLng(widget.gpsY, widget.gpsX));
+    final mediaWidth = MediaQuery.of(context).size.width;
+    final marker = NMarker(id: 'test', position: NLatLng(widget.gpsY, widget.gpsX));
     final cameraPosition = NCameraPosition(
       target: NLatLng(gpsY, gpsX),
       zoom: 15,
@@ -65,13 +66,11 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(
-              height: 10,
-            ),
+            HeightBox(normalHeight),
             Center(
               child: SizedBox(
-                width: 300,
-                height: 200,
+                width: mediaWidth - 50,
+                height: 250,
                 child: NaverMap(
                   options: NaverMapViewOptions(
                     initialCameraPosition: cameraPosition,
@@ -85,9 +84,13 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
                 ),
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            HeightBox(biggestHeight),
+            ///마켓 위치 위젯 (수정 버튼 포함)
+            marketLocationIntroWidget(mediaWidth),
+            HeightBox(biggestHeight),
+            ///마켓 이름 텍스트 필드
+            marketNameTextFeild(marketNameController: _marketNameController),
+
             Text("가게 위치 ${widget.placeAddress}"),
             TextField(
               controller: placeNameController,
@@ -114,7 +117,6 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
                     child: ElevatedButton(
                       onPressed: () async{
                         final documentId = await FirebaseFirestore.instance.collection("mapMarker").get();
-
                         final mapData = MarketData(
                           markerId: documentId.docs.first.id,
                           uid: uidHub.currentUser!.uid,
@@ -145,6 +147,63 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Column marketLocationIntroWidget(double mediaWidth) {
+    return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+          "가게 위치".text.size(bigFontSize).fontWeight(FontWeight.w700).make(),
+              HeightBox(normalHeight),
+              Stack(
+                children: [
+                  VxBox().color(greyColor).width(mediaWidth - 50).height(50).withRounded(value: normalWidth).make(),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      widget.placeAddress.text.size(normalFontSize).color(greyFontColor).make().pOnly(top: 3,left: 10),
+                      const WidthBox(350),
+                      TextButton(onPressed: (){}, child: "수정".text.color(baseColor).fontWeight(FontWeight.w700).make())
+                    ],
+                  )
+                ],
+              )
+            ],
+          );
+  }
+}
+
+class marketNameTextFeild extends StatelessWidget {
+  const marketNameTextFeild({
+    super.key,
+    required TextEditingController marketNameController,
+  }) : _marketNameController = marketNameController;
+
+  final TextEditingController _marketNameController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        "가게 이름".text.size(bigFontSize).fontWeight(FontWeight.w700).make().pOnly(left: 25),
+        HeightBox(normalHeight),
+        TextField(
+          style: const TextStyle(color: Colors.black),
+          controller: _marketNameController,
+          decoration: InputDecoration(
+            hintText: "가게 이름",
+            filled: true,
+            fillColor: greyColor,
+            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10), // 테두리에 라운드 적용
+              borderSide: BorderSide.none, // 테두리 제거
+            ),
+          ),
+        ).pOnly(left: 25,right: 25)
+      ],
     );
   }
 }

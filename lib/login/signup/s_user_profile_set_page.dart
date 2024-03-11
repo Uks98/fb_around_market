@@ -24,7 +24,6 @@ class _SignUpUserProfileSetPageState extends State<SignUpUserProfileSetPage> wit
   Uint8List? imageData; //이미지 파일 리스트, 이미지 데이터 가져오기
   XFile? image;
   final ComplexImageLogicBox _imageCompress = ComplexImageLogicBox();
-  final ToastNotification _toastNotification = ToastNotification();
   String? profileImage;
   Future<void> saveUserProfileImage()async{
     final storage = FirebaseStorage.instance;
@@ -34,11 +33,7 @@ class _SignUpUserProfileSetPageState extends State<SignUpUserProfileSetPage> wit
 
     profileImage = await storageRef.getDownloadURL();
 
-    // firestoreInit.collection("user").doc(userUid ?? "123456").set({
-    //   "profile" : profileImage
-    // });
 
-    print("abs${profileImage}");
   }
   @override
   Widget build(BuildContext context) {
@@ -95,7 +90,7 @@ class _SignUpUserProfileSetPageState extends State<SignUpUserProfileSetPage> wit
                  context.goNamed("signUpName",pathParameters: {"userProfile" : profileImage!});
 
                 }else{
-                  _toastNotification.loginToast("사진을 추가해주세요");
+                  ToastNotification.warningToast("사진을 추가해주세요");
                 }
           
               }, child: "다음".text.make()))
