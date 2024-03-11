@@ -4,10 +4,14 @@ import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import 'market_add_data/map_marker_data.dart';
+import 'market_add_widgets/market_location_intro_widget.dart';
+import 'market_add_widgets/w_market_add_textfield_widget.dart';
 
+final marketIndex = StateProvider<int>((ref) => 0);
 
 class MarkerAddPage extends StatefulWidget {
   double gpsX;
@@ -16,15 +20,15 @@ class MarkerAddPage extends StatefulWidget {
   String? imagePath;
   String? uid;
   String? docId;
-  MarkerAddPage(
-      {super.key,
-      this.uid,
-        this.docId,
-      required this.gpsX,
-      required this.gpsY,
-      required this.placeAddress,
-      }
-      );
+
+  MarkerAddPage({
+    super.key,
+    this.uid,
+    this.docId,
+    required this.gpsX,
+    required this.gpsY,
+    required this.placeAddress,
+  });
 
   @override
   State<MarkerAddPage> createState() => _MarkerAddPageState();
@@ -34,13 +38,25 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
   double get gpsY => widget.gpsY;
 
   double get gpsX => widget.gpsX;
+
   final List<String> _labels = ['길거리', '매장', '편의점'];
+  List<int> paymentSelectedIndex = [];
+  List<int> categoriesSelectedIndex = [];
+  final List<String> payType = ["현금", "카드", "계좌이체"];
+  final List<Map<String, String>> categories = [
+    {"붕어빵": "assets/pish.png"},
+    {"땅콩빵": "assets/pinut.png"},
+    {"타코야끼": "assets/taco.png"},
+    {"탕후루": "assets/tanghu.png"},
+    {"와플": "assets/waple.png"}
+  ];
   String marketType = "";
   TextEditingController placeNameController = TextEditingController();
-  final List<bool> _selections = List.generate(3, (_) => false);
   final uidHub = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
   final TextEditingController _marketNameController = TextEditingController();
+  int _selectIndex = 0;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -50,7 +66,8 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
   @override
   Widget build(BuildContext context) {
     final mediaWidth = MediaQuery.of(context).size.width;
-    final marker = NMarker(id: 'test', position: NLatLng(widget.gpsY, widget.gpsX));
+    final marker =
+        NMarker(id: 'test', position: NLatLng(widget.gpsY, widget.gpsX));
     final cameraPosition = NCameraPosition(
       target: NLatLng(gpsY, gpsX),
       zoom: 15,
@@ -66,7 +83,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            HeightBox(normalHeight),
+            HeightBox(biggestHeight),
             Center(
               child: SizedBox(
                 width: mediaWidth - 50,
@@ -85,62 +102,69 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
               ),
             ),
             HeightBox(biggestHeight),
+        
             ///마켓 위치 위젯 (수정 버튼 포함)
-            marketLocationIntroWidget(mediaWidth),
+            MarketLocationIntroWidget(widget: widget, mediaWidth: mediaWidth),
             HeightBox(biggestHeight),
+        
             ///마켓 이름 텍스트 필드
-            marketNameTextFeild(marketNameController: _marketNameController),
-
-            Text("가게 위치 ${widget.placeAddress}"),
-            TextField(
-              controller: placeNameController,
-            ),
-            ToggleButtons(
-              isSelected: _selections,
-              onPressed: (int index) {
-                setState(() {
-                  _selections[index] = !_selections[index];
-                  marketType = _labels[index];
-                });
-              },
-              borderRadius: BorderRadius.circular(30),
-              fillColor: Colors.blue,
-              selectedColor: Colors.white,
-              color: Colors.black,
-              children: _labels.map((e) => Text(e.toString())).toList(),
-            ),
+            MarketNameTextField(marketNameController: _marketNameController),
+            HeightBox(biggestHeight),
+        
+            ///가게 형태
+            marketTypeWidget(mediaWidth).pOnly(left: 25),
+            HeightBox(biggestHeight),
+        
+            ///결제 방식
+            paymentTypeWidget(mediaWidth).pOnly(left: 25),
+        
+            ///카테고리
+            HeightBox(biggestHeight),
+            categoriesWidget(mediaWidth),
             Align(
               alignment: Alignment.bottomCenter,
               child: Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async{
-                        final documentId = await FirebaseFirestore.instance.collection("mapMarker").get();
-                        final mapData = MarketData(
-                          markerId: documentId.docs.first.id,
-                          uid: uidHub.currentUser!.uid,
-                          locationName: widget.placeAddress,
-                            marketName:placeNameController.text,
-                          marketType: marketType,
-                          kindOfCash: "",
-                          gpsX: widget.gpsX,
-                          gpsY: widget.gpsY
-                        );
-                        await db.collection("mapMarker").add(
-                          mapData.toJson());
-                      },
-                      child: Text("가게 등록하기"),
+                    child: SizedBox(
+                      height: 100,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: _marketNameController.text.isEmpty ? greyColor : baseColor,
+                          shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),),
+                        onPressed: () async {
+                          final documentId = await FirebaseFirestore.instance
+                              .collection("mapMarker")
+                              .get();
+                          final mapData = MarketData(
+                              markerId: documentId.docs.first.id,
+                              uid: uidHub.currentUser!.uid,
+                              locationName: widget.placeAddress,
+                              marketName: placeNameController.text,
+                              marketType: marketType,
+                              kindOfCash: "",
+                              gpsX: widget.gpsX,
+                              gpsY: widget.gpsY);
+                          await db.collection("mapMarker").add(mapData.toJson());
+                        },
+                        child: "가게 등록하기".text.size(20).fontWeight(FontWeight.w700).color(_marketNameController.text.isEmpty ? greyFontColor : Colors.white).make(),
+                      ),
                     ),
                   ),
-                  widget.uid == uidHub.currentUser!.uid ? ElevatedButton(onPressed:()async{
-                    final db = FirebaseFirestore.instance;
-                    final col = db.collection("mapMarker").doc(widget.docId);
-                    col.update({
-                      "marketName" : placeNameController.text,
-                    });
-                    Navigator.of(context).pop();
-                  }, child:Text("수정하기")) : Container()
+                  // widget.uid == uidHub.currentUser!.uid
+                  //     ? ElevatedButton(
+                  //         onPressed: () async {
+                  //           final db = FirebaseFirestore.instance;
+                  //           final col =
+                  //               db.collection("mapMarker").doc(widget.docId);
+                  //           col.update({
+                  //             "marketName": placeNameController.text,
+                  //           });
+                  //           Navigator.of(context).pop();
+                  //         },
+                  //         child: Text("수정하기"))
+                  //     : Container()
                 ],
               ),
             )
@@ -150,59 +174,197 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
     );
   }
 
-  Column marketLocationIntroWidget(double mediaWidth) {
+  Column categoriesWidget(double mediaWidth) {
     return Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          "가게 위치".text.size(bigFontSize).fontWeight(FontWeight.w700).make(),
-              HeightBox(normalHeight),
-              Stack(
-                children: [
-                  VxBox().color(greyColor).width(mediaWidth - 50).height(50).withRounded(value: normalWidth).make(),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      widget.placeAddress.text.size(normalFontSize).color(greyFontColor).make().pOnly(top: 3,left: 10),
-                      const WidthBox(350),
-                      TextButton(onPressed: (){}, child: "수정".text.color(baseColor).fontWeight(FontWeight.w700).make())
-                    ],
-                  )
-                ],
+              "메뉴 카테고리"
+                  .text
+                  .size(normalFontSize)
+                  .fontWeight(FontWeight.w700)
+                  .make(),
+              HeightBox(biggestHeight),
+              VxBox(
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    bool isSelected = categoriesSelectedIndex.contains(index);
+                    return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isSelected) {
+                              categoriesSelectedIndex.remove(index);
+                            } else {
+                              categoriesSelectedIndex.add(index);
+                            }
+                          });
+                        },
+                        child: VxBox(
+                          child: Column(
+                            children: [
+                              Image.asset(
+                                categories[index]
+                                    .values
+                                    .toString()
+                                    .replaceAll("(", "")
+                                    .replaceAll(")", "")
+                                    .toString(),
+                                fit: BoxFit.cover,
+                                width: 40,
+                                height: 40,
+                              ),
+                              HeightBox(smallHeight),
+                              Center(
+                                child: categories[index]
+                                    .keys
+                                    .toString()
+                                    .replaceAll(")", "")
+                                    .replaceAll("(", "")
+                                    .text
+                                    .fontWeight(FontWeight.w700)
+                                    .color(isSelected
+                                        ? selectColor
+                                        : greyFontColor)
+                                    .make(),
+                              ),
+                            ],
+                          ).pOnly(top: 10),
+                        )
+                            .roundedFull
+                            .width(mediaWidth / 5)
+                            .border(
+                                color: isSelected ? baseColor : greyColor,
+                                width: 2)
+                            .margin(const EdgeInsets.all(3))
+                            .make());
+                  },
+                  itemCount: categories.length,
+                ),
               )
+                  .width(mediaWidth - 40)
+                  .withRounded(value: 15)
+                  .height(105)
+                  .color(greyColor)
+                  .make(),
+              HeightBox(biggestHeight),
+              HeightBox(biggestHeight),
             ],
           );
   }
-}
 
-class marketNameTextFeild extends StatelessWidget {
-  const marketNameTextFeild({
-    super.key,
-    required TextEditingController marketNameController,
-  }) : _marketNameController = marketNameController;
-
-  final TextEditingController _marketNameController;
-
-  @override
-  Widget build(BuildContext context) {
+  Column paymentTypeWidget(double mediaWidth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        "가게 이름".text.size(bigFontSize).fontWeight(FontWeight.w700).make().pOnly(left: 25),
-        HeightBox(normalHeight),
-        TextField(
-          style: const TextStyle(color: Colors.black),
-          controller: _marketNameController,
-          decoration: InputDecoration(
-            hintText: "가게 이름",
-            filled: true,
-            fillColor: greyColor,
-            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10), // 테두리에 라운드 적용
-              borderSide: BorderSide.none, // 테두리 제거
-            ),
-          ),
-        ).pOnly(left: 25,right: 25)
+        "결제 방식 (선택)"
+            .text
+            .size(normalFontSize)
+            .fontWeight(FontWeight.w700)
+            .make(),
+        HeightBox(biggestHeight),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    bool isSelected = paymentSelectedIndex.contains(index);
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (isSelected) {
+                            paymentSelectedIndex.remove(index);
+                          } else {
+                            paymentSelectedIndex.add(index);
+                          }
+                        });
+                      },
+                      child: VxBox(
+                        child: Center(
+                          child: payType[index]
+                              .text
+                              .fontWeight(FontWeight.w700)
+                              .color(isSelected ? selectColor : greyFontColor)
+                              .make(),
+                        ),
+                      )
+                          .withRounded(value: normalWidth)
+                          .width(mediaWidth / 3)
+                          .height(20)
+                          .border(
+                              color: isSelected ? baseColor : greyColor,
+                              width: 2)
+                          .make(),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return WidthBox(normalWidth);
+                  },
+                  itemCount: payType.length,
+                ),
+              ),
+            )
+          ],
+        )
+      ],
+    );
+  }
+
+  Column marketTypeWidget(double mediaWidth) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        "가게 형태".text.size(normalFontSize).fontWeight(FontWeight.w700).make(),
+        HeightBox(biggestHeight),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectIndex = index;
+                        });
+                      },
+                      child: VxBox(
+                              child: Center(
+                                  child: _labels[index]
+                                      .text
+                                      .fontWeight(FontWeight.w700)
+                                      .color(_selectIndex == index
+                                          ? selectColor
+                                          : greyFontColor)
+                                      .make()))
+                          .withRounded(value: normalWidth)
+                          .width(mediaWidth / 3)
+                          .height(20)
+                          .border(
+                              color:
+                                  _selectIndex == index ? baseColor : greyColor,
+                              width: 2)
+                          .make(),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return WidthBox(normalWidth);
+                  },
+                  itemCount: _labels.length,
+                ),
+              ),
+            )
+          ],
+        )
       ],
     );
   }
