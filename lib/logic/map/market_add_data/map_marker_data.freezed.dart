@@ -25,10 +25,11 @@ mixin _$MarketData {
   String? get locationName => throw _privateConstructorUsedError;
   String? get marketName => throw _privateConstructorUsedError;
   String? get marketType => throw _privateConstructorUsedError;
-  String? get kindOfCash => throw _privateConstructorUsedError; //결제 형태
+  List<String?> get kindOfCash => throw _privateConstructorUsedError; //결제 형태
   String? get category => throw _privateConstructorUsedError;
   String? get placeName => throw _privateConstructorUsedError;
   String? get imagePath => throw _privateConstructorUsedError;
+  List<String?> get categories => throw _privateConstructorUsedError;
   double? get gpsX => throw _privateConstructorUsedError;
   double? get gpsY => throw _privateConstructorUsedError;
 
@@ -50,10 +51,11 @@ abstract class $MarketDataCopyWith<$Res> {
       String? locationName,
       String? marketName,
       String? marketType,
-      String? kindOfCash,
+      List<String?> kindOfCash,
       String? category,
       String? placeName,
       String? imagePath,
+      List<String?> categories,
       double? gpsX,
       double? gpsY});
 }
@@ -76,10 +78,11 @@ class _$MarketDataCopyWithImpl<$Res, $Val extends MarketData>
     Object? locationName = freezed,
     Object? marketName = freezed,
     Object? marketType = freezed,
-    Object? kindOfCash = freezed,
+    Object? kindOfCash = null,
     Object? category = freezed,
     Object? placeName = freezed,
     Object? imagePath = freezed,
+    Object? categories = null,
     Object? gpsX = freezed,
     Object? gpsY = freezed,
   }) {
@@ -104,10 +107,10 @@ class _$MarketDataCopyWithImpl<$Res, $Val extends MarketData>
           ? _value.marketType
           : marketType // ignore: cast_nullable_to_non_nullable
               as String?,
-      kindOfCash: freezed == kindOfCash
+      kindOfCash: null == kindOfCash
           ? _value.kindOfCash
           : kindOfCash // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as List<String?>,
       category: freezed == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
@@ -120,6 +123,10 @@ class _$MarketDataCopyWithImpl<$Res, $Val extends MarketData>
           ? _value.imagePath
           : imagePath // ignore: cast_nullable_to_non_nullable
               as String?,
+      categories: null == categories
+          ? _value.categories
+          : categories // ignore: cast_nullable_to_non_nullable
+              as List<String?>,
       gpsX: freezed == gpsX
           ? _value.gpsX
           : gpsX // ignore: cast_nullable_to_non_nullable
@@ -146,10 +153,11 @@ abstract class _$$MarketDataImplCopyWith<$Res>
       String? locationName,
       String? marketName,
       String? marketType,
-      String? kindOfCash,
+      List<String?> kindOfCash,
       String? category,
       String? placeName,
       String? imagePath,
+      List<String?> categories,
       double? gpsX,
       double? gpsY});
 }
@@ -170,10 +178,11 @@ class __$$MarketDataImplCopyWithImpl<$Res>
     Object? locationName = freezed,
     Object? marketName = freezed,
     Object? marketType = freezed,
-    Object? kindOfCash = freezed,
+    Object? kindOfCash = null,
     Object? category = freezed,
     Object? placeName = freezed,
     Object? imagePath = freezed,
+    Object? categories = null,
     Object? gpsX = freezed,
     Object? gpsY = freezed,
   }) {
@@ -198,10 +207,10 @@ class __$$MarketDataImplCopyWithImpl<$Res>
           ? _value.marketType
           : marketType // ignore: cast_nullable_to_non_nullable
               as String?,
-      kindOfCash: freezed == kindOfCash
-          ? _value.kindOfCash
+      kindOfCash: null == kindOfCash
+          ? _value._kindOfCash
           : kindOfCash // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as List<String?>,
       category: freezed == category
           ? _value.category
           : category // ignore: cast_nullable_to_non_nullable
@@ -214,6 +223,10 @@ class __$$MarketDataImplCopyWithImpl<$Res>
           ? _value.imagePath
           : imagePath // ignore: cast_nullable_to_non_nullable
               as String?,
+      categories: null == categories
+          ? _value._categories
+          : categories // ignore: cast_nullable_to_non_nullable
+              as List<String?>,
       gpsX: freezed == gpsX
           ? _value.gpsX
           : gpsX // ignore: cast_nullable_to_non_nullable
@@ -235,12 +248,15 @@ class _$MarketDataImpl implements _MarketData {
       this.locationName,
       this.marketName,
       this.marketType,
-      this.kindOfCash,
+      final List<String?> kindOfCash = const [],
       this.category,
       this.placeName,
       this.imagePath,
+      final List<String?> categories = const [],
       this.gpsX,
-      this.gpsY});
+      this.gpsY})
+      : _kindOfCash = kindOfCash,
+        _categories = categories;
 
   factory _$MarketDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$MarketDataImplFromJson(json);
@@ -255,8 +271,15 @@ class _$MarketDataImpl implements _MarketData {
   final String? marketName;
   @override
   final String? marketType;
+  final List<String?> _kindOfCash;
   @override
-  final String? kindOfCash;
+  @JsonKey()
+  List<String?> get kindOfCash {
+    if (_kindOfCash is EqualUnmodifiableListView) return _kindOfCash;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_kindOfCash);
+  }
+
 //결제 형태
   @override
   final String? category;
@@ -264,6 +287,15 @@ class _$MarketDataImpl implements _MarketData {
   final String? placeName;
   @override
   final String? imagePath;
+  final List<String?> _categories;
+  @override
+  @JsonKey()
+  List<String?> get categories {
+    if (_categories is EqualUnmodifiableListView) return _categories;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_categories);
+  }
+
   @override
   final double? gpsX;
   @override
@@ -271,7 +303,7 @@ class _$MarketDataImpl implements _MarketData {
 
   @override
   String toString() {
-    return 'MarketData(uid: $uid, markerId: $markerId, locationName: $locationName, marketName: $marketName, marketType: $marketType, kindOfCash: $kindOfCash, category: $category, placeName: $placeName, imagePath: $imagePath, gpsX: $gpsX, gpsY: $gpsY)';
+    return 'MarketData(uid: $uid, markerId: $markerId, locationName: $locationName, marketName: $marketName, marketType: $marketType, kindOfCash: $kindOfCash, category: $category, placeName: $placeName, imagePath: $imagePath, categories: $categories, gpsX: $gpsX, gpsY: $gpsY)';
   }
 
   @override
@@ -288,14 +320,16 @@ class _$MarketDataImpl implements _MarketData {
                 other.marketName == marketName) &&
             (identical(other.marketType, marketType) ||
                 other.marketType == marketType) &&
-            (identical(other.kindOfCash, kindOfCash) ||
-                other.kindOfCash == kindOfCash) &&
+            const DeepCollectionEquality()
+                .equals(other._kindOfCash, _kindOfCash) &&
             (identical(other.category, category) ||
                 other.category == category) &&
             (identical(other.placeName, placeName) ||
                 other.placeName == placeName) &&
             (identical(other.imagePath, imagePath) ||
                 other.imagePath == imagePath) &&
+            const DeepCollectionEquality()
+                .equals(other._categories, _categories) &&
             (identical(other.gpsX, gpsX) || other.gpsX == gpsX) &&
             (identical(other.gpsY, gpsY) || other.gpsY == gpsY));
   }
@@ -309,10 +343,11 @@ class _$MarketDataImpl implements _MarketData {
       locationName,
       marketName,
       marketType,
-      kindOfCash,
+      const DeepCollectionEquality().hash(_kindOfCash),
       category,
       placeName,
       imagePath,
+      const DeepCollectionEquality().hash(_categories),
       gpsX,
       gpsY);
 
@@ -337,10 +372,11 @@ abstract class _MarketData implements MarketData {
       final String? locationName,
       final String? marketName,
       final String? marketType,
-      final String? kindOfCash,
+      final List<String?> kindOfCash,
       final String? category,
       final String? placeName,
       final String? imagePath,
+      final List<String?> categories,
       final double? gpsX,
       final double? gpsY}) = _$MarketDataImpl;
 
@@ -358,13 +394,15 @@ abstract class _MarketData implements MarketData {
   @override
   String? get marketType;
   @override
-  String? get kindOfCash;
+  List<String?> get kindOfCash;
   @override //결제 형태
   String? get category;
   @override
   String? get placeName;
   @override
   String? get imagePath;
+  @override
+  List<String?> get categories;
   @override
   double? get gpsX;
   @override

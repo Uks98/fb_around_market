@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/color/color_box.dart';
+import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -34,15 +35,17 @@ class MarkerAddPage extends StatefulWidget {
   State<MarkerAddPage> createState() => _MarkerAddPageState();
 }
 
-class _MarkerAddPageState extends State<MarkerAddPage> {
+class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
   double get gpsY => widget.gpsY;
 
   double get gpsX => widget.gpsX;
-
-  final List<String> _labels = ['길거리', '매장', '편의점'];
-  List<int> paymentSelectedIndex = [];
-  List<int> categoriesSelectedIndex = [];
+  //매장 관련 리스트
+  final List<String> _marketType = ['길거리', '매장', '편의점'];
+  //카테고리 관련 리스트
   final List<String> payType = ["현금", "카드", "계좌이체"];
+  List<String> paymentSelected = [];
+
+  List<String> categoriesSelected = [];
   final List<Map<String, String>> categories = [
     {"붕어빵": "assets/pish.png"},
     {"땅콩빵": "assets/pinut.png"},
@@ -53,7 +56,6 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
   String marketType = "";
   TextEditingController placeNameController = TextEditingController();
   final uidHub = FirebaseAuth.instance;
-  final db = FirebaseFirestore.instance;
   final TextEditingController _marketNameController = TextEditingController();
   int _selectIndex = 0;
 
@@ -134,19 +136,20 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
                           borderRadius: BorderRadius.circular(5.0),
                         ),),
                         onPressed: () async {
-                          final documentId = await FirebaseFirestore.instance
-                              .collection("mapMarker")
-                              .get();
+                          final documentId = await firestoreInit.collection("mapMarker").get();
+
                           final mapData = MarketData(
-                              markerId: documentId.docs.first.id,
-                              uid: uidHub.currentUser!.uid,
+                              markerId: DateTime.now().microsecondsSinceEpoch.toString(),
+                              uid: userUid,
                               locationName: widget.placeAddress,
                               marketName: placeNameController.text,
                               marketType: marketType,
-                              kindOfCash: "",
+                              kindOfCash: paymentSelected,
                               gpsX: widget.gpsX,
-                              gpsY: widget.gpsY);
-                          await db.collection("mapMarker").add(mapData.toJson());
+                              gpsY: widget.gpsY,
+                              categories: categoriesSelected,
+                          );
+                          await firestoreInit.collection("mapMarker").add(mapData.toJson());
                         },
                         child: "가게 등록하기".text.size(20).fontWeight(FontWeight.w700).color(_marketNameController.text.isEmpty ? greyFontColor : Colors.white).make(),
                       ),
@@ -189,16 +192,17 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
-                    bool isSelected = categoriesSelectedIndex.contains(index);
+                    bool isSelected = categoriesSelected.contains(categories[index].keys.toString());
                     return GestureDetector(
                         onTap: () {
                           setState(() {
                             if (isSelected) {
-                              categoriesSelectedIndex.remove(index);
+                              categoriesSelected.remove(categories[index].keys.toString());
                             } else {
-                              categoriesSelectedIndex.add(index);
+                              categoriesSelected.add(categories[index].keys.toString());
                             }
                           });
+
                         },
                         child: VxBox(
                           child: Column(
@@ -273,14 +277,16 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
-                    bool isSelected = paymentSelectedIndex.contains(index);
+                    bool isSelected = paymentSelected.contains(payType[index]);
                     return GestureDetector(
                       onTap: () {
                         setState(() {
                           if (isSelected) {
-                            paymentSelectedIndex.remove(index);
+                            paymentSelected.remove(payType[index]);
+                            print(paymentSelected);
                           } else {
-                            paymentSelectedIndex.add(index);
+                            paymentSelected.add(payType[index]);
+                            print(paymentSelected);
                           }
                         });
                       },
@@ -339,7 +345,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
                       },
                       child: VxBox(
                               child: Center(
-                                  child: _labels[index]
+                                  child: _marketType[index]
                                       .text
                                       .fontWeight(FontWeight.w700)
                                       .color(_selectIndex == index
@@ -359,7 +365,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> {
                   separatorBuilder: (BuildContext context, int index) {
                     return WidthBox(normalWidth);
                   },
-                  itemCount: _labels.length,
+                  itemCount: _marketType.length,
                 ),
               ),
             )

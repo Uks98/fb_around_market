@@ -11,10 +11,11 @@ sealed class MarketData with _$MarketData{
     String? locationName,
     String? marketName,
     String? marketType,
-    String? kindOfCash, //결제 형태
+    @Default([]) List<String?>  kindOfCash, //결제 형태
     String? category,
     String? placeName,
     String? imagePath,
+    @Default([]) List<String?> categories,
 
     double? gpsX,
     double? gpsY,

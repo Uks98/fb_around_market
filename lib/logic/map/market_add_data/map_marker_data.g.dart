@@ -13,10 +13,17 @@ _$MarketDataImpl _$$MarketDataImplFromJson(Map<String, dynamic> json) =>
       locationName: json['locationName'] as String?,
       marketName: json['marketName'] as String?,
       marketType: json['marketType'] as String?,
-      kindOfCash: json['kindOfCash'] as String?,
+      kindOfCash: (json['kindOfCash'] as List<dynamic>?)
+              ?.map((e) => e as String?)
+              .toList() ??
+          const [],
       category: json['category'] as String?,
       placeName: json['placeName'] as String?,
       imagePath: json['imagePath'] as String?,
+      categories: (json['categories'] as List<dynamic>?)
+              ?.map((e) => e as String?)
+              .toList() ??
+          const [],
       gpsX: (json['gpsX'] as num?)?.toDouble(),
       gpsY: (json['gpsY'] as num?)?.toDouble(),
     );
@@ -32,6 +39,7 @@ Map<String, dynamic> _$$MarketDataImplToJson(_$MarketDataImpl instance) =>
       'category': instance.category,
       'placeName': instance.placeName,
       'imagePath': instance.imagePath,
+      'categories': instance.categories,
       'gpsX': instance.gpsX,
       'gpsY': instance.gpsY,
     };

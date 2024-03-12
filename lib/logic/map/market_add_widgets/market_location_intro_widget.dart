@@ -33,7 +33,8 @@ class MarketLocationIntroWidget extends StatelessWidget {
                 .pOnly(top: 3, left: 20),
             const WidthBox(350),
             TextButton(
-                onPressed: () {},
+                onPressed: () {
+                },
                 child: "수정"
                     .text
                     .color(baseColor)
