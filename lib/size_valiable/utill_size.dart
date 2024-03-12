@@ -15,6 +15,7 @@ double biggestHeight = 20.0;
 double smallFontSize = 10.0;
 double normalFontSize = 16.0;
 double bigFontSize = 18.0;
+double biggestFontSize = 22.0;
 double addressFontSize = 20.0;
 
 

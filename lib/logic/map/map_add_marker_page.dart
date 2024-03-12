@@ -70,6 +70,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
     final mediaWidth = MediaQuery.of(context).size.width;
     final marker =
         NMarker(id: 'test', position: NLatLng(widget.gpsY, widget.gpsX));
+
     final cameraPosition = NCameraPosition(
       target: NLatLng(gpsY, gpsX),
       zoom: 15,
@@ -282,10 +283,10 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
                       onTap: () {
                         setState(() {
                           if (isSelected) {
-                            paymentSelected.remove(payType[index]);
+                            paymentSelected.remove(payType[index].replaceAll("(", "").replaceAll(")", ""));
                             print(paymentSelected);
                           } else {
-                            paymentSelected.add(payType[index]);
+                            paymentSelected.add(payType[index].replaceAll("(", "").replaceAll(")", ""));
                             print(paymentSelected);
                           }
                         });

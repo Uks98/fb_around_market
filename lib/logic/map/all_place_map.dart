@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fb_around_market/logic/map/marker_detail_page/s_market_detail.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -60,13 +61,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
             marker.setOnTapListener(
               (overlay) => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => MarkerAddPage(
-                    uid: doc.data()["uid"],
-                    docId: doc.id,
-                    gpsX: geoPointX,
-                    gpsY: geoPointY,
-                    placeAddress: "",
-                  ),
+                  builder: (context) => MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,)
                 ),
               ),
             );
@@ -79,6 +74,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
                 NaverMap(
                   options: const NaverMapViewOptions(),
                   onMapTapped: (x, y) {
+
                     // for(final i in teams){
                     //   final point = i
                     //   setState(() {
@@ -93,7 +89,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
                       naverMapController!.addOverlayAll(markers!);
                     });
 
-                    //markers!.map((e) => e.setOnTapListener((onMarkerInfoWindow) => print(onMarkerInfoWindow.position)));
+                    markers!.map((e) => e.setOnTapListener((onMarkerInfoWindow) => print(onMarkerInfoWindow.position)));
                   },
                 ),
                 Align(
