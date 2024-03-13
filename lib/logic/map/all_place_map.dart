@@ -112,7 +112,6 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
                                   height: 100,
                                   child: GestureDetector(
                                       onTap: () {
-                                        print(items[index].markerId);
                                       },
                                       child: Text(
                                         items[index].locationName.toString() ??

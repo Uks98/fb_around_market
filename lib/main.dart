@@ -1,3 +1,4 @@
+import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/logic/map/all_place_map.dart';
 import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 import 'package:fb_around_market/main_page/s_main_page.dart';
@@ -66,7 +67,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         fontFamily: "nexon1",
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: selectColor),
         useMaterial3: true,
       ),
         routerConfig: router,

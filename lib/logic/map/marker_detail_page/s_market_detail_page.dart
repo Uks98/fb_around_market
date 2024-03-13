@@ -5,6 +5,7 @@ import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/w_detail_widgets.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +16,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:velocity_x/velocity_x.dart';
 
+import '../../../login/login_riv_state.dart';
 import '../../image_compress.dart';
 import '../market_add_data/map_marker_data.dart';
 import '../market_add_widgets/button_widgets.dart';
+import '../market_add_widgets/w_market_info.dart';
 
 class MarketDetailPage extends ConsumerStatefulWidget{
   double gpsX;
@@ -34,19 +37,22 @@ class MarketDetailPage extends ConsumerStatefulWidget{
 
 class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> with FireBaseInitialize {
   Stream<QuerySnapshot<Map<String,dynamic>>> streamMapData(){
-    final mapData = firestoreInit.collection("mapMarker");
     return firestoreInit.collection("mapMarker").where("markerId",isEqualTo : widget.id).snapshots();
   }
 
   //유저의 프로필을 불러오는 stream입니다.
   Stream<QuerySnapshot<Map<String,dynamic>>> streamProfileInfo(){
-    final users = fireBaseAuthInit.currentUser?.uid ?? "00";
-    final myAddMarket = firestoreInit.collection("mapMarker").doc().get(); //마켓에 uid만 가져와서 users uid와 매치하는 이미지를 보여주자
-    //final m = myAddMarket.
     return FirebaseFirestore.instance.collection("users").where("userUid",isEqualTo: widget.uid).snapshots();
   }
+  //유저의 리뷰를 불러오는 stream입니다.
+  Stream<QuerySnapshot<Map<String,dynamic>>> streamReview(){
+    final review = firestoreInit.collection("mapMarker").doc(widget.docId).collection("reviews").orderBy("timestamp").snapshots(); //마켓에 uid만 가져와서 users uid와 매치하는 이미지를 보여주자
+    return review;
+  }
+
   Uint8List? _imageData;
   final ComplexImageLogicBox _imageCompress = ComplexImageLogicBox();
+  TextEditingController reviewTec = TextEditingController();
   String? profileImage;
   XFile? image;
   Future<void> saveUserProfileImage()async{
@@ -73,7 +79,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
     final marker = NMarker(id: 'test4', position: NLatLng(widget.gpsY, widget.gpsX));
     final mediaWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Color(0xffFDFDFEFF),
+      backgroundColor: const Color(0xffFDFDFEFF),
       body: SafeArea(
         child: SingleChildScrollView(
           child: StreamBuilder(
@@ -91,6 +97,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(widget.docId),
                     const HeightBox(50),
                     StreamBuilder(
                       stream: streamProfileInfo(),
@@ -135,7 +142,6 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                             icons: Ionicons.aperture,
                             title: "즐겨찾기",
                             callBack: () {
-                              print("${widget.uid}");
                             },
                           ),
                           DetailIconText(
@@ -227,17 +233,19 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                             .height(120)
                             .withRounded(value: normalHeight)
                             .make()
-                            .pOnly() : SizedBox(
-                               width: 400,
-                              height: 150,
+                            .pOnly() : Container(
+                               width: 660,
+                              height: 100,
                               child: ListView.builder(
                                   scrollDirection:Axis.horizontal,
                               itemCount: items?.length,
                               itemBuilder: (context,index){
-                                return Container(
+                                return SizedBox(
                                   width: 100,height: 100,
                                   //image path를 리스트로 변경하면 두장이상 가능
-                                  child: Image.network(items?[index].imagePath.toString() ?? "",fit: BoxFit.cover,),);
+                                  child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(items?[index].imagePath.toString() ?? "",fit: BoxFit.cover,)),);
                                                       }),
                             ),
                       ],
@@ -255,22 +263,218 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                 .size(bigFontSize)
                                 .color(Colors.black)
                                 .make(),
-                            TextButtonWidget(buttonName: "리뷰 쓰기", callback: () {  },)
+                            PopupMenuButton(
+                              color: Colors.white,
+                                itemBuilder: (context) {
+                              return [
+                                PopupMenuItem(
+                                  child: const Text("리뷰 작성하기"),
+                                  onTap: () {
+                                    int reviewScore = 0;
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) {
+                                        return StatefulBuilder(
+                                            builder: (context, setState) {
+                                              return AlertDialog(
+                                                backgroundColor: Colors.white,
+                                                title: const Text("이 가게를 추천하시나요?"),
+                                                content: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Row(
+                                                      children: List.generate(
+                                                        5, (index) => IconButton(
+                                                        onPressed: () {
+                                                          setState(() =>
+                                                          reviewScore = index);
+                                                        },
+                                                        icon: Icon(
+                                                          Icons.star,
+                                                          color:
+                                                          index <= reviewScore
+                                                              ? Colors.orange
+                                                              : Colors.grey,
+                                                        ),
+                                                      ),
+                                                      ),
+                                                    ),
+                                                    HeightBox(normalHeight),
+                                                    TextField(
+                                                      style: const TextStyle(color: Colors.black),
+                                                      controller: reviewTec,
+                                                      decoration: InputDecoration(
+                                                        hintText: "리뷰를 남겨주세요(100자 이내)",
+                                                        filled: true,
+                                                        fillColor: Colors.grey[100],
+                                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                                        border: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(10), // 테두리에 라운드 적용
+                                                          borderSide: BorderSide.none, // 테두리 제거
+                                                        ),
+                                                      ),
+                                                      maxLines: 3,
+                                                    )
+                                                  ],
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context).pop(),
+                                                    child: const Text("취소"),
+                                                  ),
+                                                  Consumer(builder:
+                                                      (context, ref, child) {
+                                                    final user = ref.watch(userCredentialProvider);
+                                                    return TextButton(
+                                                      onPressed: () async {
+                                                        final db = FirebaseFirestore.instance;
+                                                        final currentUser = FirebaseAuth.instance.currentUser;
+                                                        final login = await db.collection("users").doc(currentUser!.uid).get();
+                                                        await FirebaseFirestore
+                                                            .instance
+                                                            .collection("mapMarker")
+                                                            .doc(
+                                                            widget.docId)
+                                                            .collection("reviews").doc(widget.docId).set({
+                                                          "uid":
+                                                          user?.user?.uid ?? "",
+                                                          "email":
+                                                          user?.user?.email ?? "",
+                                                          "review":
+                                                          reviewTec.text.trim(),
+                                                          "timestamp":
+                                                          Timestamp.now(),
+                                                          "score": reviewScore + 1
+                                                        });
+
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: const Text("등록"),
+                                                    );
+                                                  })
+                                                ],
+                                              );
+                                            });
+                                      },
+                                    );
+                                  },
+                                ),
+                              ];
+                            }
+                            )
                           ],
                         ).pOnly(left: detailLeftRightPadding,right: detailLeftRightPadding),
                         HeightBox(smallHeight),
-                        VxBox(
-                            child:Center(child: "📷 리뷰를 작성해주세요!".text.fontWeight(FontWeight.w700).size(bigFontSize).color(Colors.grey[500]).make())
+
+                        StreamBuilder(stream: streamReview(), builder: (context,snapshot){
+                          if(snapshot.hasData){
+                            final item = snapshot.data?.docs ?? [];
+                          return SizedBox(
+                            width: 670,
+                            height: 300,
+                            child: ListView.separated(
+                                shrinkWrap: false,
+                                itemBuilder: (context, index1) {
+                                  return GestureDetector(
+                                    onTap: () {},
+                                    child: Container(
+                                      color: reviewPoPUp,
+                                      child: InkWell(
+                                        child: Padding(
+                                          padding:
+                                          EdgeInsets.only(top: 10, bottom: 10, left: 10),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                width: 300,
+                                                child: Row(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                  MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Column(
+                                                      crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            StreamBuilder(
+                                                                stream: streamProfileInfo(),
+                                                                builder: (context, snapshot) {
+                                                                  if(snapshot.hasData){
+                                                                    final userDataAdapter = snapshot.data?.docs;
+                                                                    final userData = userDataAdapter?.map((e) => e.data()["profileImage"]);
+                                                                    return Row(
+                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                      children: [
+                                                                        //"${userData}".text.size(30).make(),
+                                                                        CircleAvatar(
+                                                                          radius: 25,
+                                                                          backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
+                                                                        ),
+                                                                        WidthBox(normalWidth),
+
+                                                                      ],
+                                                                    ).pOnly(left: detailLeftRightPadding);
+                                                                  }
+                                                                  return Container();
+                                                                }
+                                                            ),
+
+                                                        "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),
+
+                                                          ],
+                                                        ),
+                                                       HeightBox(smallHeight),
+                                                        //리뷰 작성 시간
+                                                        "${item[index1]["review"]}".text.size(bigFontSize).fontWeight(FontWeight.w700).make(),
+                                                        SizedBox(
+                                                          height: 15,
+                                                        ),
+                                                        //사용자 리뷰
+                                                        Text(
+                                                          "aaaaaa",
+                                                          style: TextStyle(fontSize: 18),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                separatorBuilder: (ctx, idx) {
+                                  return SizedBox(
+                                    height: 15,
+                                  );
+                                },
+                                itemCount: item.length),
+                          );
+                          }
+                          return VxBox(
+                              child:Center(child: "📷 리뷰를 작성해주세요!".text.fontWeight(FontWeight.w700).size(bigFontSize).color(Colors.grey[500]).make())
+                          )
+                              .color(highGreyColor)
+                              .width(mediaWidth - 50)
+                              .height(120)
+                              .withRounded(value: normalHeight)
+                              .make()
+                              .pOnly();
+                        },
+
                         )
-                            .color(highGreyColor)
-                            .width(mediaWidth - 50)
-                            .height(120)
-                            .withRounded(value: normalHeight)
-                            .make()
-                            .pOnly(),
                       ],
                     ),
-                    HeightBox(100),
+                    const HeightBox(100),
                   ],
                 );
               }
@@ -283,27 +487,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
   }
 }
 
-class MarketInfoWidget extends StatelessWidget {
-  String intro;
-  String value;
-   MarketInfoWidget({
-    super.key,
-     required this.intro,
-     required this.value,
 
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        intro.text.fontWeight(FontWeight.w700).size(normalFontSize).make().pOnly(left: 60),
-        value.text.fontWeight(FontWeight.w700).size(normalFontSize).make().pOnly(right: 60),
-      ],
-    );
-  }
-}
 
 class DetailMap extends StatelessWidget {
   const DetailMap({
