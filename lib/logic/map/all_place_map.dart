@@ -63,7 +63,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
               (overlay) => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
-                    return MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,id : markerData["markerId"],uid : markerData["uid"]);
+                    return MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,id : markerData["markerId"],uid : markerData["uid"],docId : doc.id);
                   }
                 ),
               ),

@@ -144,9 +144,6 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                             }
                             ref.watch(userCredentialProvider.notifier).state = result;
                             if(context.mounted){
-
-
-
                               context.pushNamed("main");
                             }
                           }

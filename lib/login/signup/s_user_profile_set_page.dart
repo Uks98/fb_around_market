@@ -27,14 +27,13 @@ class _SignUpUserProfileSetPageState extends State<SignUpUserProfileSetPage> wit
   String? profileImage;
   Future<void> saveUserProfileImage()async{
     final storage = FirebaseStorage.instance;
-    final storageRef = storage.ref("profile/").child("${DateTime.now().microsecondsSinceEpoch}_${image?.name ?? "??"}.jpg");
+    final storageRef = storage.ref("marketImage/").child("${DateTime.now().microsecondsSinceEpoch}_${image?.name ?? "??"}.jpg");
     final compressImage =  await _imageCompress.imageCompressList(imageData!);
     await storageRef.putData(compressImage);
 
     profileImage = await storageRef.getDownloadURL();
-
-
   }
+
   @override
   Widget build(BuildContext context) {
 
@@ -83,8 +82,6 @@ class _SignUpUserProfileSetPageState extends State<SignUpUserProfileSetPage> wit
                   )),
               HeightBox(80),
               Center(child: ElevatedButton(onPressed: () async{
-                 //final db = FirebaseFirestore.instance;
-                 //await db.collection("aaaa").add({"title" : "aaa"});
                 if(imageData != null){
                  await saveUserProfileImage();
                  context.goNamed("signUpName",pathParameters: {"userProfile" : profileImage!});

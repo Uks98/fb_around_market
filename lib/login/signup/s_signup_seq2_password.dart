@@ -30,6 +30,7 @@ class SignUpAddPassWordPage extends ConsumerWidget with FireBaseInitialize {
           "user": userUid,
           "userUid": ""
         });
+        //계정이 생성 된 이후 만들어지는 uid를 받아오기 위한 작업
         await firestoreInit.collection("users").doc(userId).update({
               "userUid" : fireBaseAuthInit.currentUser!.uid
             });

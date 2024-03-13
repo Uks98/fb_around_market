@@ -1,64 +1,76 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/w_detail_widgets.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:velocity_x/velocity_x.dart';
 
+import '../../image_compress.dart';
+import '../market_add_data/map_marker_data.dart';
 import '../market_add_widgets/button_widgets.dart';
 
-class MarketDetailPage extends StatelessWidget with FireBaseInitialize{
+class MarketDetailPage extends ConsumerStatefulWidget{
   double gpsX;
   double gpsY;
   String id;
   String uid;
+  String docId;
 
-  MarketDetailPage({super.key, required this.gpsX, required this.gpsY,required this.id,required this.uid});
+  MarketDetailPage({super.key, required this.gpsX, required this.gpsY,required this.id,required this.uid,required this.docId});
+
+  @override
+  ConsumerState<MarketDetailPage> createState() => _MarketDetailPageConsumerState();
+}
+
+class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> with FireBaseInitialize {
   Stream<QuerySnapshot<Map<String,dynamic>>> streamMapData(){
     final mapData = firestoreInit.collection("mapMarker");
-    return firestoreInit.collection("mapMarker").where("markerId",isEqualTo : id).snapshots();
+    return firestoreInit.collection("mapMarker").where("markerId",isEqualTo : widget.id).snapshots();
   }
+
+  //유저의 프로필을 불러오는 stream입니다.
   Stream<QuerySnapshot<Map<String,dynamic>>> streamProfileInfo(){
     final users = fireBaseAuthInit.currentUser?.uid ?? "00";
     final myAddMarket = firestoreInit.collection("mapMarker").doc().get(); //마켓에 uid만 가져와서 users uid와 매치하는 이미지를 보여주자
     //final m = myAddMarket.
-    return FirebaseFirestore.instance.collection("users").where("userUid",isEqualTo: uid).snapshots();
+    return FirebaseFirestore.instance.collection("users").where("userUid",isEqualTo: widget.uid).snapshots();
   }
+  Uint8List? _imageData;
+  final ComplexImageLogicBox _imageCompress = ComplexImageLogicBox();
+  String? profileImage;
+  XFile? image;
+  Future<void> saveUserProfileImage()async{
+    final storage = FirebaseStorage.instance;
+    final storageRef = storage.ref("marketImage/").child("${DateTime.now().microsecondsSinceEpoch}_${image?.name ?? "??"}.jpg");
+    final compressImage =  await _imageCompress.imageCompressList(_imageData!);
+    await storageRef.putData(compressImage);
 
-
-  // Future<List<Map<String, dynamic>>> getFirestoreData() async {
-  //   // Firestore 컬렉션 참조
-  //   CollectionReference collectionRef = FirebaseFirestore.instance.collection('users');
-  //
-  //   // 컬렉션의 모든 문서 가져오기
-  //   QuerySnapshot querySnapshot = await collectionRef.get();
-  //
-  //   // 문서 데이터를 Map 형식으로 변환하여 리스트에 추가
-  //   List<Map<String, dynamic>> dataList = [];
-  //   querySnapshot.docs.forEach((DocumentSnapshot document) {
-  //     Map<String, dynamic> data = (document.data()) as Map<String,dynamic>;
-  //     data['documentId'] = document.id;
-  //     dataList.add(data);
-  //   });
-  //
-  //   // 데이터 리스트 반환
-  //   return dataList;
-  // }
-
+    profileImage = await storageRef.getDownloadURL();
+    
+    await firestoreInit.collection("mapMarker").doc(widget.docId).update({
+      "imagePath" : profileImage
+    });
+  }
   @override
   Widget build(BuildContext context) {
 
     final cameraPosition = NCameraPosition(
-      target: NLatLng(gpsY, gpsX),
+      target: NLatLng(widget.gpsY, widget.gpsX),
       zoom: 15,
       bearing: 45,
       tilt: 30,
     );
-    final marker = NMarker(id: 'test4', position: NLatLng(gpsY, gpsX));
+    final marker = NMarker(id: 'test4', position: NLatLng(widget.gpsY, widget.gpsX));
     final mediaWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Color(0xffFDFDFEFF),
@@ -69,7 +81,14 @@ class MarketDetailPage extends StatelessWidget with FireBaseInitialize{
             builder: (context, snapshot) {
               if(snapshot.hasData){
                final marketData =  snapshot.data?.docs[0];
-                return Column(
+               final items = snapshot.data?.docs
+                   .map(
+                     (e) => MarketData.fromJson(e.data())
+                     .copyWith(markerId: e.data()["markerId"]),
+               )
+                   .toList();
+
+               return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const HeightBox(50),
@@ -90,7 +109,7 @@ class MarketDetailPage extends StatelessWidget with FireBaseInitialize{
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  "${userDataAdapter?.map((e) => e.data()["userId"])}".text.color(greyFontColor).make(),
+                                  "${userDataAdapter?.map((e) => e.data()["userId"])}님이 등록하셨어요.".text.color(greyFontColor).make(),
                                   HeightBox(smallHeight),
                                   "${marketData?["marketName"] == "" ? "매장 이름이 없어요!" : marketData?["marketName"]}"
                                       .text
@@ -116,7 +135,7 @@ class MarketDetailPage extends StatelessWidget with FireBaseInitialize{
                             icons: Ionicons.aperture,
                             title: "즐겨찾기",
                             callBack: () {
-                              print("$uid");
+                              print("${widget.uid}");
                             },
                           ),
                           DetailIconText(
@@ -139,7 +158,7 @@ class MarketDetailPage extends StatelessWidget with FireBaseInitialize{
                         .make()
                         .pOnly(left: 25),
                     HeightBox(detailTopPadding),
-                    detailMap(
+                    DetailMap(
                         mediaWidth: mediaWidth,
                         cameraPosition: cameraPosition,
                         marker: marker),
@@ -189,11 +208,18 @@ class MarketDetailPage extends StatelessWidget with FireBaseInitialize{
                                 .size(bigFontSize)
                                 .color(Colors.black)
                                 .make(),
-                            TextButtonWidget(buttonName: "사진 제보", callback: () {  },)
+                            _imageData == null ? TextButtonWidget(buttonName: "사진 제보" , callback: () async{
+                              ImagePicker imagePicker = ImagePicker();
+                              final img = await imagePicker.pickImage(source: ImageSource.gallery);
+                              _imageData = await img?.readAsBytes();
+                              setState(() {});
+                            },) : TextButtonWidget(buttonName: "사진 저장", callback: ()async{
+                              await saveUserProfileImage();
+                            }),
                           ],
                         ).pOnly(left: detailLeftRightPadding,right: detailLeftRightPadding),
                         HeightBox(smallHeight),
-                        VxBox(
+                        items?[0].imagePath == null ? VxBox(
                             child:Center(child: "📷 사진을 제보해주세요!".text.fontWeight(FontWeight.w700).size(bigFontSize).color(Colors.grey[500]).make())
                         )
                             .color(highGreyColor)
@@ -201,7 +227,19 @@ class MarketDetailPage extends StatelessWidget with FireBaseInitialize{
                             .height(120)
                             .withRounded(value: normalHeight)
                             .make()
-                            .pOnly(),
+                            .pOnly() : SizedBox(
+                               width: 400,
+                              height: 150,
+                              child: ListView.builder(
+                                  scrollDirection:Axis.horizontal,
+                              itemCount: items?.length,
+                              itemBuilder: (context,index){
+                                return Container(
+                                  width: 100,height: 100,
+                                  //image path를 리스트로 변경하면 두장이상 가능
+                                  child: Image.network(items?[index].imagePath.toString() ?? "",fit: BoxFit.cover,),);
+                                                      }),
+                            ),
                       ],
                     ),
                     HeightBox(detailTopPadding),
@@ -267,8 +305,8 @@ class MarketInfoWidget extends StatelessWidget {
   }
 }
 
-class detailMap extends StatelessWidget {
-  const detailMap({
+class DetailMap extends StatelessWidget {
+  const DetailMap({
     super.key,
     required this.mediaWidth,
     required this.cameraPosition,
