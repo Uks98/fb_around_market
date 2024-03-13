@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fb_around_market/logic/map/marker_detail_page/s_market_detail.dart';
+import 'package:fb_around_market/logic/map/marker_detail_page/s_market_detail_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -52,16 +52,19 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
 
           Set<NMarker>? markers = snapshot.data?.docs.map((doc) {
             //final dummyx = doc.get("gpsX"); => stream방식 같으나 스트림 적용안됨
-            final geoPointX = (doc.data())["gpsX"];
-            final geoPointY = (doc.data())["gpsY"];
+            final markerData = doc.data();
+            final geoPointX = (markerData)["gpsX"];
+            final geoPointY = (markerData)["gpsY"];
             NMarker marker = NMarker(
-              id: doc.data()["markerId"],
+              id: markerData["markerId"],
               position: NLatLng(geoPointY, geoPointX),
             );
             marker.setOnTapListener(
               (overlay) => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,)
+                  builder: (context) {
+                    return MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,id : markerData["markerId"],uid : markerData["uid"]);
+                  }
                 ),
               ),
             );

@@ -1,32 +1,38 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:velocity_x/velocity_x.dart';
-
-class SignUpAddPassWordPage extends StatelessWidget with FireBaseInitialize {
+final userId = StateProvider<String>((ref) => "");
+class SignUpAddPassWordPage extends ConsumerWidget with FireBaseInitialize {
   String userId;
   String? userImage;
 
   SignUpAddPassWordPage({super.key, required this.userId, this.userImage});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
     TextEditingController _passwordController = TextEditingController();
     Future<bool> signUp(String emailAddress, String password) async {
       try {
             await fireBaseAuthInit.createUserWithEmailAndPassword(
                 email: emailAddress, password: password);
         //add 대신 set으로 설정해서 docyment id를 user.uid로 변경 후 프로필 사진 불러오기 성공..
-        await FirebaseFirestore.instance.collection("users").doc(userUid).set({
+        await FirebaseFirestore.instance.collection("users").doc(userId).set({
           "profileImage": userImage,
           "userId": userId,
           "password": _passwordController.text,
-          "user": userUid
+          "user": userUid,
+          "userUid": ""
         });
+        await firestoreInit.collection("users").doc(userId).update({
+              "userUid" : fireBaseAuthInit.currentUser!.uid
+            });
         return true;
       } on FirebaseAuthException catch (e) {
         if (e.code == "weak-password") {

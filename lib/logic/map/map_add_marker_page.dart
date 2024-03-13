@@ -41,6 +41,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
   double get gpsX => widget.gpsX;
   //매장 관련 리스트
   final List<String> _marketType = ['길거리', '매장', '편의점'];
+  String market = "길거리";
   //카테고리 관련 리스트
   final List<String> payType = ["현금", "카드", "계좌이체"];
   List<String> paymentSelected = [];
@@ -53,7 +54,6 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
     {"탕후루": "assets/tanghu.png"},
     {"와플": "assets/waple.png"}
   ];
-  String marketType = "";
   TextEditingController placeNameController = TextEditingController();
   final uidHub = FirebaseAuth.instance;
   final TextEditingController _marketNameController = TextEditingController();
@@ -106,7 +106,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
             ),
             HeightBox(biggestHeight),
         
-            ///마켓 위치 위젯 (수정 버튼 포함)
+            ///마켓 위치 위젯
             MarketLocationIntroWidget(widget: widget, mediaWidth: mediaWidth),
             HeightBox(biggestHeight),
         
@@ -137,14 +137,12 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
                           borderRadius: BorderRadius.circular(5.0),
                         ),),
                         onPressed: () async {
-                          final documentId = await firestoreInit.collection("mapMarker").get();
-
                           final mapData = MarketData(
                               markerId: DateTime.now().microsecondsSinceEpoch.toString(),
                               uid: userUid,
                               locationName: widget.placeAddress,
-                              marketName: placeNameController.text,
-                              marketType: marketType,
+                              marketName: _marketNameController.text,
+                              marketType: market,
                               kindOfCash: paymentSelected,
                               gpsX: widget.gpsX,
                               gpsY: widget.gpsY,
@@ -341,6 +339,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
                     return GestureDetector(
                       onTap: () {
                         setState(() {
+                          market = _marketType[index];
                           _selectIndex = index;
                         });
                       },

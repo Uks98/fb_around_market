@@ -6,5 +6,5 @@ import 'dart:ui';
 const baseColor = Color(0xffFFB4B4);
 const selectColor = Color(0xffFF8080);
 const greyColor = Color(0xffEEEEEE);
-const highGreyColor = Color(0xffEFECEC);
+const highGreyColor = Color(0xfff8f8f9);
 const greyFontColor = Color(0xff63686E);

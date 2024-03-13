@@ -24,9 +24,9 @@ class DetailIconText extends StatelessWidget {
       },
       child: Column(
         children: [
-           Icon(icons,color: Colors.black, size: 30,),
+           Icon(icons,color: Colors.black, size: 20,),
           HeightBox(smallHeight),
-          title.text.size(normalFontSize).fontWeight(FontWeight.w700).make(),
+          title.text.size(smallFontSize).fontWeight(FontWeight.w700).make(),
         ],
       ),
     );

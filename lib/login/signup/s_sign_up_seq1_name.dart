@@ -1,14 +1,16 @@
+import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-class SignUpAddNamePage extends StatelessWidget {
+class SignUpAddNamePage extends ConsumerWidget{
   SignUpAddNamePage({super.key, this.userProfile});
   final String? userProfile;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
     print(userProfile);
     TextEditingController _idController = TextEditingController();
     final _formKey = GlobalKey<FormState>();
@@ -61,13 +63,15 @@ class SignUpAddNamePage extends StatelessWidget {
                              ],
                            ),
               const HeightBox(150),
-              Center(child: ElevatedButton(onPressed: () {
+              Center(child: ElevatedButton(onPressed: () async{
                 if(_formKey.currentState!.validate()){
                   _formKey.currentState!.save();
                 if(context.mounted){
+                   String id = await ref.watch(userId);
+                   id = _idController.text;
                   context.goNamed("password",
                       pathParameters: {
-                    "userId" : _idController.text,
+                    "userId" : id,
                     "userImage":userProfile ?? "",});
                 }
                 }

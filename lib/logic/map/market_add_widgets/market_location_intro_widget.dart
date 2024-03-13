@@ -5,6 +5,7 @@ import 'package:velocity_x/velocity_x.dart';
 import '../../../color/color_box.dart';
 import '../../../size_valiable/utill_size.dart';
 import '../map_add_marker_page.dart';
+import 'button_widgets.dart';
 
 class MarketLocationIntroWidget extends StatelessWidget {
   const MarketLocationIntroWidget({
@@ -32,14 +33,7 @@ class MarketLocationIntroWidget extends StatelessWidget {
                 .make()
                 .pOnly(top: 3, left: 20),
             const WidthBox(350),
-            TextButton(
-                onPressed: () {
-                },
-                child: "수정"
-                    .text
-                    .color(baseColor)
-                    .fontWeight(FontWeight.w700)
-                    .make().pOnly())
+            TextButtonWidget(buttonName:"수정",callback: (){}),
           ],
         ))
             .color(greyColor)

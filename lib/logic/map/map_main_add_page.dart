@@ -174,7 +174,7 @@ class AddressPopupWidget extends StatelessWidget {
         VxBox()
             .color(Colors.grey[100]!)
             .height(50)
-            .width(MediaQuery.of(context).size.width - 40).withRounded(value: 10)
+            .width(MediaQuery.of(context).size.width - 40).topRightRounded(value: 10).leftRounded(value: 10)
             .make(),
 
         Center(child: "$addressNameText".text.size(addressFontSize).fontWeight(FontWeight.w700).make()).pOnly(top: 10)

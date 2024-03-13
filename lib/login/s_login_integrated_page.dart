@@ -1,5 +1,6 @@
 import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
+import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 import 'package:fb_around_market/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -143,6 +144,9 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                             }
                             ref.watch(userCredentialProvider.notifier).state = result;
                             if(context.mounted){
+
+
+
                               context.pushNamed("main");
                             }
                           }
