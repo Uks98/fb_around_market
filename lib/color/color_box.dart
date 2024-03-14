@@ -9,3 +9,4 @@ const greyColor = Color(0xffEEEEEE);
 const highGreyColor = Color(0xfff8f8f9);
 const greyFontColor = Color(0xff63686E);
 const reviewPoPUp = Color(0xfff8f8f9);
+const cardColor = Color(0xff272829);

@@ -137,7 +137,6 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-
                           DetailIconText(
                             icons: Ionicons.aperture,
                             title: "즐겨찾기",
@@ -327,10 +326,9 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                                   Consumer(builder:
                                                       (context, ref, child) {
                                                     final user = ref.watch(userCredentialProvider);
+                                                    final time = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
                                                     return TextButton(
                                                       onPressed: () async {
-                                                        final db = FirebaseFirestore.instance;
-                                                        final currentUser = FirebaseAuth.instance.currentUser;
                                                         await FirebaseFirestore
                                                             .instance
                                                             .collection("mapMarker")
@@ -343,8 +341,8 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                                           user?.user?.email ?? "",
                                                           "review":
                                                           reviewTec.text.trim(),
-                                                          "timestamp":
-                                                          Timestamp.now(),
+                                                          "timestamp": Timestamp.now(),
+                                                          "writeTime": time,
                                                           "score": reviewScore + 1
                                                         });
 
@@ -410,6 +408,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                                                         backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
                                                                       ),
                                                                       WidthBox(normalWidth),
+                                                                      "작성시간 ${item[index1]["email"].toString()}".text.make()
                                                                     ],
                                                                   ).pOnly(left: detailLeftRightPadding);
                                                                 }

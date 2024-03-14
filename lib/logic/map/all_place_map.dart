@@ -1,5 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fb_around_market/color/color_box.dart';
+import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/s_market_detail_page.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,7 +22,7 @@ class AllPlaceMapPage extends StatefulWidget {
   State<AllPlaceMapPage> createState() => _AllPlaceMapPageState();
 }
 
-class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
+class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitialize{
   AddressName addressName = AddressName();
   NaverMapController? naverMapController;
   String? addressNameText = "";
@@ -31,9 +33,9 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
 
 
   Stream<QuerySnapshot> streamMapMarker() {
-    final db = FirebaseFirestore.instance;
-    return db.collection("mapMarker").snapshots();
+    return firestoreInit.collection("mapMarker").snapshots();
   }
+
 
   @override
   void initState() {
@@ -51,8 +53,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
                 (e) => MarketData.fromJson(e.data())
                     .copyWith(markerId: e.data()["markerId"]),
               )
-              .toList();
-
+              .toList() ?? [];
           Set<NMarker>? markers = snapshot.data?.docs.map((doc) {
             //final dummyx = doc.get("gpsX"); => stream방식 같으나 스트림 적용안됨
             final markerData = doc.data();
@@ -81,13 +82,6 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
                   options: const NaverMapViewOptions(),
                   onMapTapped: (x, y) {
 
-                    // for(final i in teams){
-                    //   final point = i
-                    //   setState(() {
-                    //     markers.add(NMarker(id: 'test3',position: NLatLng(i.reference., y.longitude)));
-                    //     naverMapController?.addOverlayAll(markers);
-                    //   });
-                    // }
                   },
                   onMapReady: (controller1) {
                     naverMapController = controller1;
@@ -103,36 +97,59 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                       Container(
+                      items.isNotEmpty ?   Container(
                            width: MediaQuery.of(context).size.width,
                            color: Colors.transparent,
                            child:  CarouselSlider.builder(
-                             itemCount: items!.length,
+                             itemCount: snapshot.data?.docs.length,
                                options: CarouselOptions(
-                                 autoPlay: false,
+                                 enableInfiniteScroll : false,
+                                 autoPlay: true,
                                  height: 200,
-                                 enlargeCenterPage: true,
                                  viewportFraction: 0.9,
                                  aspectRatio: 2.0,
                                  initialPage: 2,
                                ),
-                             itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) =>
-                             VxBox(child: Column(
+                             itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
+                               final mainSumImage = items[itemIndex].category.toString().replaceAll("(", "").replaceAll(")","");
+                               print(mainSumImage);
+                               return VxBox(child: Column(
+                               crossAxisAlignment: CrossAxisAlignment.start,
                                children: [
-                                 GestureDetector(
-                                   onTap: () {
-                                   },
-                                   child: Text(
-                                     items[itemIndex].locationName.toString() ??
-                                         "",
-                                     style: const TextStyle(fontSize: 30),
-                                   ),),
+                                 Row(
+                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                   children: [
+                                     WidthBox(bigWidth),
+                                     CircleAvatar(
+                                       backgroundColor: cardColor,
+                                       radius: 30,
+                                       backgroundImage:AssetImage(mainSumImage),
+                                     ).pOnly(top: biggestHeight),
+                                     WidthBox(bigWidth),
+                                     Column(
+                                       mainAxisSize: MainAxisSize.min,
+                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                       children: [
+                                         HeightBox(bigHeight),
+                                         "# ${items[itemIndex].categories[0].toString()}".text.color(Colors.grey[400]).make(),
+                                         HeightBox(normalHeight),
+                                         "가게 이름 : ${items[itemIndex].marketName.toString()}".text.color(Colors.white).size(bigFontSize).fontWeight(FontWeight.w700).make(),
+                                         HeightBox(normalHeight),
+                                         "가게 위치 : ${items[itemIndex].locationName.toString()}".text.color(Colors.white).make(),
+                                         HeightBox(biggestHeight + 5),
+                                         "💬 리뷰 : 0개".text.color(Colors.white).make(),
+                                       ],
+                                     )
+                                   ],
+                                 ),
+
                                  HeightBox(biggestHeight),
                                ],
-                             ),).width(MediaQuery.of(context).size.width /1.2,).height(200).color(Colors.black).withRounded(value: biggestHeight).make(),
+                             ),).width(MediaQuery.of(context).size.width /1.2,).height(200).color(cardColor).withRounded(value: biggestHeight).make();
+                             },
 
                            ),
-                       ),
+                       ) : Container(),
                       HeightBox(biggestHeight),
                     ],
                   ),

@@ -47,6 +47,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
   List<String> paymentSelected = [];
 
   List<String> categoriesSelected = [];
+  List<String> categoriesImage = [];
   final List<Map<String, String>> categories = [
     {"붕어빵": "assets/pish.png"},
     {"땅콩빵": "assets/pinut.png"},
@@ -147,6 +148,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
                               gpsX: widget.gpsX,
                               gpsY: widget.gpsY,
                               categories: categoriesSelected,
+                              category: categoriesImage[0]
                           );
                           await firestoreInit.collection("mapMarker").add(mapData.toJson());
                         },
@@ -197,8 +199,10 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
                           setState(() {
                             if (isSelected) {
                               categoriesSelected.remove(categories[index].keys.toString());
+                              categoriesImage.remove(categories[index].values.toString());
                             } else {
                               categoriesSelected.add(categories[index].keys.toString());
+                              categoriesImage.add(categories[index].values.toString());
                             }
                           });
 
