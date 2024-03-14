@@ -3,7 +3,8 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
-import 'package:fb_around_market/logic/map/marker_detail_page/w_detail_widgets.dart';
+import 'package:fb_around_market/logic/map/marker_detail_page/w_detail_widget/w_detail_widgets.dart';
+import 'package:fb_around_market/logic/map/marker_detail_page/w_detail_widget/w_review_start.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -97,7 +98,6 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.docId),
                     const HeightBox(50),
                     StreamBuilder(
                       stream: streamProfileInfo(),
@@ -331,13 +331,12 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                                       onPressed: () async {
                                                         final db = FirebaseFirestore.instance;
                                                         final currentUser = FirebaseAuth.instance.currentUser;
-                                                        final login = await db.collection("users").doc(currentUser!.uid).get();
                                                         await FirebaseFirestore
                                                             .instance
                                                             .collection("mapMarker")
                                                             .doc(
                                                             widget.docId)
-                                                            .collection("reviews").doc(widget.docId).set({
+                                                            .collection("reviews").add({
                                                           "uid":
                                                           user?.user?.uid ?? "",
                                                           "email":
@@ -373,89 +372,71 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                             final item = snapshot.data?.docs ?? [];
                           return SizedBox(
                             width: 670,
-                            height: 300,
+                            height: 600,
                             child: ListView.separated(
                                 shrinkWrap: false,
                                 itemBuilder: (context, index1) {
                                   return GestureDetector(
                                     onTap: () {},
-                                    child: Container(
-                                      color: reviewPoPUp,
+                                    child: VxBox(
                                       child: InkWell(
-                                        child: Padding(
-                                          padding:
-                                          EdgeInsets.only(top: 10, bottom: 10, left: 10),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              SizedBox(
-                                                width: 300,
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
-                                                  children: [
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            StreamBuilder(
-                                                                stream: streamProfileInfo(),
-                                                                builder: (context, snapshot) {
-                                                                  if(snapshot.hasData){
-                                                                    final userDataAdapter = snapshot.data?.docs;
-                                                                    final userData = userDataAdapter?.map((e) => e.data()["profileImage"]);
-                                                                    return Row(
-                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                      children: [
-                                                                        //"${userData}".text.size(30).make(),
-                                                                        CircleAvatar(
-                                                                          radius: 25,
-                                                                          backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
-                                                                        ),
-                                                                        WidthBox(normalWidth),
-
-                                                                      ],
-                                                                    ).pOnly(left: detailLeftRightPadding);
-                                                                  }
-                                                                  return Container();
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(
+                                              width : 400,
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          StreamBuilder(
+                                                              stream: streamProfileInfo(),
+                                                              builder: (context, snapshot) {
+                                                                if(snapshot.hasData){
+                                                                  final userDataAdapter = snapshot.data?.docs;
+                                                                  final userData = userDataAdapter?.map((e) => e.data()["profileImage"]);
+                                                                  return Row(
+                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                    children: [
+                                                                      //"${userData}".text.size(30).make(),
+                                                                      CircleAvatar(
+                                                                        radius: 20,
+                                                                        backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
+                                                                      ),
+                                                                      WidthBox(normalWidth),
+                                                                    ],
+                                                                  ).pOnly(left: detailLeftRightPadding);
                                                                 }
-                                                            ),
+                                                                return Container();
+                                                              }
+                                                          ),
 
-                                                        "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),
+                                                          "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),],),
+                                                      HeightBox(normalHeight),
+                                                      ReviewLogic.returnStar(item[index1]["score"]).pOnly(left: 20),
+                                                      HeightBox(bigHeight),
 
-                                                          ],
-                                                        ),
-                                                       HeightBox(smallHeight),
-                                                        //리뷰 작성 시간
-                                                        "${item[index1]["review"]}".text.size(bigFontSize).fontWeight(FontWeight.w700).make(),
-                                                        SizedBox(
-                                                          height: 15,
-                                                        ),
-                                                        //사용자 리뷰
-                                                        Text(
-                                                          "aaaaaa",
-                                                          style: TextStyle(fontSize: 18),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
+                                                      "${item[index1]["review"]}".text.size(bigFontSize).fontWeight(FontWeight.w700).make().pOnly(left: 20),
+                                                      HeightBox(bigHeight),
+                                                    ],
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                        ),
+                                            ),
+                                          ],
+                                        ).p(normalWidth),
                                       ),
-                                    ),
+                                    ).color(reviewPoPUp).withRounded(value: normalWidth).make()
                                   );
                                 },
                                 separatorBuilder: (ctx, idx) {
-                                  return SizedBox(
-                                    height: 15,
-                                  );
+                                  return HeightBox(normalHeight);
                                 },
                                 itemCount: item.length),
                           );
@@ -474,7 +455,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                         )
                       ],
                     ),
-                    const HeightBox(100),
+                    const HeightBox(30),
                   ],
                 );
               }

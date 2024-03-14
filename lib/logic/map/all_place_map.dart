@@ -1,10 +1,13 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/s_market_detail_page.dart';
+import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 import 'convert_location.dart';
 import 'map_add_marker_page.dart';
@@ -100,26 +103,37 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 100,
-                          color: Colors.grey,
-                          child: ListView.builder(
-                              itemCount: items!.length,
-                              itemBuilder: (context, index) {
-                                return SizedBox(
-                                  width: 100,
-                                  height: 100,
-                                  child: GestureDetector(
-                                      onTap: () {
-                                      },
-                                      child: Text(
-                                        items[index].locationName.toString() ??
-                                            "",
-                                        style: const TextStyle(fontSize: 30),
-                                      )),
-                                );
-                              })),
+                       Container(
+                           width: MediaQuery.of(context).size.width,
+                           color: Colors.transparent,
+                           child:  CarouselSlider.builder(
+                             itemCount: items!.length,
+                               options: CarouselOptions(
+                                 autoPlay: false,
+                                 height: 200,
+                                 enlargeCenterPage: true,
+                                 viewportFraction: 0.9,
+                                 aspectRatio: 2.0,
+                                 initialPage: 2,
+                               ),
+                             itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) =>
+                             VxBox(child: Column(
+                               children: [
+                                 GestureDetector(
+                                   onTap: () {
+                                   },
+                                   child: Text(
+                                     items[itemIndex].locationName.toString() ??
+                                         "",
+                                     style: const TextStyle(fontSize: 30),
+                                   ),),
+                                 HeightBox(biggestHeight),
+                               ],
+                             ),).width(MediaQuery.of(context).size.width /1.2,).height(200).color(Colors.black).withRounded(value: biggestHeight).make(),
+
+                           ),
+                       ),
+                      HeightBox(biggestHeight),
                     ],
                   ),
                 )
