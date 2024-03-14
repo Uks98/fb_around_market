@@ -189,7 +189,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                             MarketInfoWidget(intro: '도로명 주소',value:"${marketData?["locationName"]}",),
                             MarketInfoWidget(intro: '가게형태',value: "${marketData?["marketType"]}",),
                             MarketInfoWidget(intro: '결제방식',value: "현금",),
-                            MarketInfoWidget(intro: '메뉴',value: "${marketData?["categories"]}",)
+                            MarketInfoWidget(intro: '메뉴',value: "${marketData?["categories"][0]}".replaceAll("(", "").replaceAll(")", ""),)
                           ],
                         )
                     )

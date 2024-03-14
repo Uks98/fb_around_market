@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
     ),
     GoRoute(
         name: "main",
-        path: '/', builder: (context, state) => MainPage()),
+        path: '/', builder: (context, state) => const MainPage()),
   ],
 
   );

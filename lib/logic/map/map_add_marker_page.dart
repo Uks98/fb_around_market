@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import 'market_add_data/map_marker_data.dart';
@@ -151,6 +152,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize{
                               category: categoriesImage[0]
                           );
                           await firestoreInit.collection("mapMarker").add(mapData.toJson());
+                          context.goNamed("main");
                         },
                         child: "가게 등록하기".text.size(20).fontWeight(FontWeight.w700).color(_marketNameController.text.isEmpty ? greyFontColor : Colors.white).make(),
                       ),

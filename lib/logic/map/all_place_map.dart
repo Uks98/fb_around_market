@@ -42,7 +42,12 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
     // TODO: implement initState
     super.initState();
   }
-
+  NCameraPosition cameraPosition = NCameraPosition(
+    target: NLatLng(37.0222, 126.9783881),
+    zoom: 18,
+    bearing: 45,
+    tilt: 0,
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,13 +81,15 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
           }).toSet();
 
           if (snapshot.hasData) {
+
             return Stack(
               children: [
                 NaverMap(
-                  options: const NaverMapViewOptions(),
-                  onMapTapped: (x, y) {
 
-                  },
+                  options:  NaverMapViewOptions(
+                    initialCameraPosition: cameraPosition
+                  ),
+                  onMapTapped: (x, y) {},
                   onMapReady: (controller1) {
                     naverMapController = controller1;
                     setState(() {
@@ -104,7 +111,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                              itemCount: snapshot.data?.docs.length,
                                options: CarouselOptions(
                                  enableInfiniteScroll : false,
-                                 autoPlay: true,
+                                 autoPlay: false,
                                  height: 200,
                                  viewportFraction: 0.9,
                                  aspectRatio: 2.0,
@@ -112,40 +119,49 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                                ),
                              itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
                                final mainSumImage = items[itemIndex].category.toString().replaceAll("(", "").replaceAll(")","");
-                               print(mainSumImage);
-                               return VxBox(child: Column(
-                               crossAxisAlignment: CrossAxisAlignment.start,
-                               children: [
-                                 Row(
-                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                   children: [
-                                     WidthBox(bigWidth),
-                                     CircleAvatar(
-                                       backgroundColor: cardColor,
-                                       radius: 30,
-                                       backgroundImage:AssetImage(mainSumImage),
-                                     ).pOnly(top: biggestHeight),
-                                     WidthBox(bigWidth),
-                                     Column(
-                                       mainAxisSize: MainAxisSize.min,
-                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                       children: [
-                                         HeightBox(bigHeight),
-                                         "# ${items[itemIndex].categories[0].toString()}".text.color(Colors.grey[400]).make(),
-                                         HeightBox(normalHeight),
-                                         "가게 이름 : ${items[itemIndex].marketName.toString()}".text.color(Colors.white).size(bigFontSize).fontWeight(FontWeight.w700).make(),
-                                         HeightBox(normalHeight),
-                                         "가게 위치 : ${items[itemIndex].locationName.toString()}".text.color(Colors.white).make(),
-                                         HeightBox(biggestHeight + 5),
-                                         "💬 리뷰 : 0개".text.color(Colors.white).make(),
-                                       ],
-                                     )
-                                   ],
-                                 ),
+                               return GestureDetector(
+                                 onTap: (){
+                                   naverMapController?.updateCamera(
+                                       NCameraUpdate.withParams(
+                                         target: NLatLng(double.parse(items[itemIndex].gpsY.toString()), double.parse(items[itemIndex].gpsX.toString(),),),
+                                         bearing: 180,
+                                       )
+                                   );
+                                 },
+                                 child: VxBox(child: Column(
+                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                 children: [
+                                   Row(
+                                     crossAxisAlignment: CrossAxisAlignment.start,
+                                     children: [
+                                       WidthBox(bigWidth),
+                                       CircleAvatar(
+                                         backgroundColor: cardColor,
+                                         radius: 30,
+                                         backgroundImage:AssetImage(mainSumImage),
+                                       ).pOnly(top: biggestHeight),
+                                       WidthBox(bigWidth),
+                                       Column(
+                                         mainAxisSize: MainAxisSize.min,
+                                         crossAxisAlignment: CrossAxisAlignment.start,
+                                         children: [
+                                           HeightBox(bigHeight),
+                                           "# ${items[itemIndex].categories[0].toString()}".text.color(Colors.grey[400]).make(),
+                                           HeightBox(normalHeight),
+                                           "가게 이름 : ${items[itemIndex].marketName.toString()}".text.color(Colors.white).size(bigFontSize).fontWeight(FontWeight.w700).make(),
+                                           HeightBox(normalHeight),
+                                           "가게 위치 : ${items[itemIndex].locationName.toString()}".text.color(Colors.white).make(),
+                                           HeightBox(biggestHeight + 5),
+                                           "💬 리뷰 : 0개".text.color(Colors.white).make(),
+                                         ],
+                                       )
+                                     ],
+                                   ),
 
-                                 HeightBox(biggestHeight),
-                               ],
-                             ),).width(MediaQuery.of(context).size.width /1.2,).height(200).color(cardColor).withRounded(value: biggestHeight).make();
+                                   HeightBox(biggestHeight),
+                                 ],
+                                                              ),).width(MediaQuery.of(context).size.width /1.2,).height(200).color(cardColor).withRounded(value: biggestHeight).make(),
+                               );
                              },
 
                            ),
