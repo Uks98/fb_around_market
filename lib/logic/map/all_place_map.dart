@@ -31,7 +31,6 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
   final user = FirebaseAuth.instance;
 
 
-
   Stream<QuerySnapshot> streamMapMarker() {
     return firestoreInit.collection("mapMarker").snapshots();
   }
@@ -110,6 +109,14 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                            child:  CarouselSlider.builder(
                              itemCount: snapshot.data?.docs.length,
                                options: CarouselOptions(
+                                 onPageChanged: (index, _){
+                                   naverMapController?.updateCamera(
+                                       NCameraUpdate.withParams(
+                                         target: NLatLng(double.parse(items[index].gpsY.toString()), double.parse(items[index].gpsX.toString(),),),
+                                         bearing: 180,
+                                       )
+                                   );
+                                 },
                                  enableInfiniteScroll : false,
                                  autoPlay: false,
                                  height: 200,
@@ -121,12 +128,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                                final mainSumImage = items[itemIndex].category.toString().replaceAll("(", "").replaceAll(")","");
                                return GestureDetector(
                                  onTap: (){
-                                   naverMapController?.updateCamera(
-                                       NCameraUpdate.withParams(
-                                         target: NLatLng(double.parse(items[itemIndex].gpsY.toString()), double.parse(items[itemIndex].gpsX.toString(),),),
-                                         bearing: 180,
-                                       )
-                                   );
+
                                  },
                                  child: VxBox(child: Column(
                                  crossAxisAlignment: CrossAxisAlignment.start,
