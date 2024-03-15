@@ -17,10 +17,13 @@ _$MarketDataImpl _$$MarketDataImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String?)
               .toList() ??
           const [],
-      category: json['category'] as String?,
-      placeName: json['placeName'] as String?,
+      categoryImage: json['categoryImage'] as String?,
       imagePath: json['imagePath'] as String?,
       categories: (json['categories'] as List<dynamic>?)
+              ?.map((e) => e as String?)
+              .toList() ??
+          const [],
+      dayOfWeek: (json['dayOfWeek'] as List<dynamic>?)
               ?.map((e) => e as String?)
               .toList() ??
           const [],
@@ -36,10 +39,10 @@ Map<String, dynamic> _$$MarketDataImplToJson(_$MarketDataImpl instance) =>
       'marketName': instance.marketName,
       'marketType': instance.marketType,
       'kindOfCash': instance.kindOfCash,
-      'category': instance.category,
-      'placeName': instance.placeName,
+      'categoryImage': instance.categoryImage,
       'imagePath': instance.imagePath,
       'categories': instance.categories,
+      'dayOfWeek': instance.dayOfWeek,
       'gpsX': instance.gpsX,
       'gpsY': instance.gpsY,
     };

@@ -5,6 +5,7 @@ import 'package:fb_around_market/notification_widget/w_toast_notification.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'convert_location.dart';
 import 'map_add_marker_page.dart';

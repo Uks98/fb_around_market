@@ -71,7 +71,9 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
               (overlay) => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
-                    return MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,id : markerData["markerId"],uid : markerData["uid"],docId : doc.id);
+                    return MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,id : markerData["markerId"],uid : markerData["uid"],docId : doc.id,
+                    //데이터 넘겨서 매칭 되는 요일만 색상 변경
+                    );
                   }
                 ),
               ),
@@ -125,7 +127,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                                  initialPage: 2,
                                ),
                              itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
-                               final mainSumImage = items[itemIndex].category.toString().replaceAll("(", "").replaceAll(")","");
+                               final mainSumImage = items[itemIndex].categoryImage.toString().replaceAll("(", "").replaceAll(")","");
                                return GestureDetector(
                                  onTap: (){
 

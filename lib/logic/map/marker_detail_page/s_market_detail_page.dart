@@ -29,8 +29,9 @@ class MarketDetailPage extends ConsumerStatefulWidget{
   String id;
   String uid;
   String docId;
+  List<String?> dayOfWeek;
 
-  MarketDetailPage({super.key, required this.gpsX, required this.gpsY,required this.id,required this.uid,required this.docId});
+  MarketDetailPage({super.key, required this.gpsX, required this.gpsY,required this.id,required this.uid,required this.docId,required this.dayOfWeek});
 
   @override
   ConsumerState<MarketDetailPage> createState() => _MarketDetailPageConsumerState();
@@ -50,7 +51,8 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
     final review = firestoreInit.collection("mapMarker").doc(widget.docId).collection("reviews").orderBy("timestamp").snapshots(); //마켓에 uid만 가져와서 users uid와 매치하는 이미지를 보여주자
     return review;
   }
-
+//week list
+  final List<String> weekList = ["월", "화", "수","목","금","토","일"];
   Uint8List? _imageData;
   final ComplexImageLogicBox _imageCompress = ComplexImageLogicBox();
   TextEditingController reviewTec = TextEditingController();
@@ -189,13 +191,20 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                             MarketInfoWidget(intro: '도로명 주소',value:"${marketData?["locationName"]}",),
                             MarketInfoWidget(intro: '가게형태',value: "${marketData?["marketType"]}",),
                             MarketInfoWidget(intro: '결제방식',value: "현금",),
-                            MarketInfoWidget(intro: '메뉴',value: "${marketData?["categories"][0]}".replaceAll("(", "").replaceAll(")", ""),)
+                            MarketInfoWidget(intro: '메뉴',value: "${marketData?["categories"][0]}".replaceAll("(", "").replaceAll(")", ""),),
+                            "출몰 시기".text.fontWeight(FontWeight.w700).size(normalFontSize).make().pOnly(left: 60),
+                            Row(
+                              children: List.generate(7, (index) => VxBox(
+                                child: Center(child: "${weekList[index].toString()}".text.make())
+                              ).size(30,30).color(greyFontColor).roundedFull.make().pOnly(right: smallWidth)),
+                            )
+                            
                           ],
                         )
                     )
                         .color(highGreyColor)
                         .width(mediaWidth - 50)
-                        .height(150)
+                        .height(200)
                         .withRounded(value: normalHeight)
                         .make()
                         .pOnly(left: 25),
@@ -370,7 +379,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                             final item = snapshot.data?.docs ?? [];
                           return SizedBox(
                             width: 670,
-                            height: 600,
+                            height: 300,
                             child: ListView.separated(
                                 shrinkWrap: false,
                                 itemBuilder: (context, index1) {
