@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
+import 'package:fb_around_market/logic/map/map_marker_enum/marker_enum.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/s_market_detail_page.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -63,7 +64,9 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
             final markerData = doc.data();
             final geoPointX = (markerData)["gpsX"];
             final geoPointY = (markerData)["gpsY"];
+
             NMarker marker = NMarker(
+              icon: MarkerIcon.markerConvertWithMenu(markerData),
               id: markerData["markerId"],
               position: NLatLng(geoPointY, geoPointX),
             );
@@ -71,7 +74,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
               (overlay) => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
-                    return MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,id : markerData["markerId"],uid : markerData["uid"],docId : doc.id,
+                    return MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,id : markerData["markerId"],uid : markerData["uid"],docId : doc.id, dayOfWeek: markerData["dayOfWeek"],
                     //데이터 넘겨서 매칭 되는 요일만 색상 변경
                     );
                   }

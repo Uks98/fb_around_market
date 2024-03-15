@@ -29,7 +29,7 @@ class MarketDetailPage extends ConsumerStatefulWidget{
   String id;
   String uid;
   String docId;
-  List<String?> dayOfWeek;
+  List<dynamic> dayOfWeek;
 
   MarketDetailPage({super.key, required this.gpsX, required this.gpsY,required this.id,required this.uid,required this.docId,required this.dayOfWeek});
 
@@ -51,6 +51,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
     final review = firestoreInit.collection("mapMarker").doc(widget.docId).collection("reviews").orderBy("timestamp").snapshots(); //마켓에 uid만 가져와서 users uid와 매치하는 이미지를 보여주자
     return review;
   }
+
 //week list
   final List<String> weekList = ["월", "화", "수","목","금","토","일"];
   Uint8List? _imageData;
@@ -70,9 +71,27 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
       "imagePath" : profileImage
     });
   }
+
+  bool isTrueWeek(){
+    bool isTrue = false;
+    int getLength = widget.dayOfWeek.length -1;
+    for(final x in weekList){
+      for(int i = 0; i <= getLength; i++){
+        if( x == widget.dayOfWeek[i]) {
+          isTrue = true;
+          break;
+        }
+        else{
+          isTrue = false;
+        }
+      }
+    }
+    print(isTrue);
+    return isTrue;
+  }
   @override
   Widget build(BuildContext context) {
-
+    print(widget.dayOfWeek);
     final cameraPosition = NCameraPosition(
       target: NLatLng(widget.gpsY, widget.gpsX),
       zoom: 15,
@@ -192,13 +211,20 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                             MarketInfoWidget(intro: '가게형태',value: "${marketData?["marketType"]}",),
                             MarketInfoWidget(intro: '결제방식',value: "현금",),
                             MarketInfoWidget(intro: '메뉴',value: "${marketData?["categories"][0]}".replaceAll("(", "").replaceAll(")", ""),),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
                             "출몰 시기".text.fontWeight(FontWeight.w700).size(normalFontSize).make().pOnly(left: 60),
                             Row(
-                              children: List.generate(7, (index) => VxBox(
-                                child: Center(child: "${weekList[index].toString()}".text.make())
-                              ).size(30,30).color(greyFontColor).roundedFull.make().pOnly(right: smallWidth)),
-                            )
-                            
+                              children: List.generate(weekList.length, (index) {
+                                bool isMatched = widget.dayOfWeek.contains(weekList[index]);
+                                return VxBox(
+                                    child: Center(child: "${weekList[index].toString()}".text.color(isMatched ? Colors.white: Colors.grey[200]).make())
+                                ).size(30,30).color(isMatched ? baseColor: greyFontColor).roundedFull.make().pOnly(right: smallWidth);
+                              }),
+                            ).pOnly(right: 60)
+                          ],
+                        ),
                           ],
                         )
                     )
@@ -234,7 +260,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                         ).pOnly(left: detailLeftRightPadding,right: detailLeftRightPadding),
                         HeightBox(smallHeight),
                         items?[0].imagePath == null ? VxBox(
-                            child:Center(child: "📷 사진을 제보해주세요!".text.fontWeight(FontWeight.w700).size(bigFontSize).color(Colors.grey[500]).make())
+                            child:Center(child: "사진을 제보해주세요!".text.fontWeight(FontWeight.w700).size(bigFontSize).color(Colors.grey[500]).make())
                         )
                             .color(highGreyColor)
                             .width(mediaWidth - 50)
@@ -383,65 +409,77 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                             child: ListView.separated(
                                 shrinkWrap: false,
                                 itemBuilder: (context, index1) {
-                                  return GestureDetector(
-                                    onTap: () {},
-                                    child: VxBox(
-                                      child: InkWell(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                              width : 400,
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                children: [
-                                                  Column(
+                                  if(snapshot.hasData){
+                                    return GestureDetector(
+                                        onTap: () {},
+                                        child: VxBox(
+                                          child: InkWell(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(
+                                                  width : 400,
+                                                  child: Row(
                                                     crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                     children: [
-                                                      Row(
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
                                                         children: [
-                                                          StreamBuilder(
-                                                              stream: streamProfileInfo(),
-                                                              builder: (context, snapshot) {
-                                                                if(snapshot.hasData){
-                                                                  final userDataAdapter = snapshot.data?.docs;
-                                                                  final userData = userDataAdapter?.map((e) => e.data()["profileImage"]);
-                                                                  return Row(
-                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                    children: [
-                                                                      //"${userData}".text.size(30).make(),
-                                                                      CircleAvatar(
-                                                                        radius: 20,
-                                                                        backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
-                                                                      ),
-                                                                      WidthBox(normalWidth),
-                                                                      "작성시간 ${item[index1]["email"].toString()}".text.make()
-                                                                    ],
-                                                                  ).pOnly(left: detailLeftRightPadding);
-                                                                }
-                                                                return Container();
-                                                              }
-                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              StreamBuilder(
+                                                                  stream: streamProfileInfo(),
+                                                                  builder: (context, snapshot) {
+                                                                    if(snapshot.hasData){
+                                                                      final userDataAdapter = snapshot.data?.docs;
+                                                                      final userData = userDataAdapter?.map((e) => e.data()["profileImage"]);
+                                                                      return Row(
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          CircleAvatar(
+                                                                            radius: 20,
+                                                                            backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
+                                                                          ),
+                                                                          WidthBox(normalWidth),
+                                                                          "작성시간 ${item[index1]["email"].toString()}".text.make()
+                                                                        ],
+                                                                      ).pOnly(left: detailLeftRightPadding);
+                                                                    }
+                                                                    return Container();
+                                                                  }
+                                                              ),
 
-                                                          "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),],),
-                                                      HeightBox(normalHeight),
-                                                      ReviewLogic.returnStar(item[index1]["score"]).pOnly(left: 20),
-                                                      HeightBox(bigHeight),
+                                                              "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),],),
+                                                          HeightBox(normalHeight),
+                                                          ReviewLogic.returnStar(item[index1]["score"]).pOnly(left: 20),
+                                                          HeightBox(bigHeight),
 
-                                                      "${item[index1]["review"]}".text.size(bigFontSize).fontWeight(FontWeight.w700).make().pOnly(left: 20),
-                                                      HeightBox(bigHeight),
+                                                          "${item[index1]["review"]}".text.size(bigFontSize).fontWeight(FontWeight.w700).make().pOnly(left: 20),
+                                                          HeightBox(bigHeight),
+                                                        ],
+                                                      ),
                                                     ],
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ).p(normalWidth),
-                                      ),
-                                    ).color(reviewPoPUp).withRounded(value: normalWidth).make()
-                                  );
+                                                ),
+                                              ],
+                                            ).p(normalWidth),
+                                          ),
+                                        ).color(reviewPoPUp).withRounded(value: normalWidth).make()
+                                    );
+                                  }
+                                  else if(!snapshot.hasData){
+                                    return VxBox(
+                                        child:Center(child: "📷 리뷰를 작성해주세요!".text.fontWeight(FontWeight.w700).size(bigFontSize).color(Colors.grey[500]).make())
+                                    )
+                                        .color(highGreyColor)
+                                        .width(mediaWidth - 50)
+                                        .height(120)
+                                        .withRounded(value: normalHeight)
+                                        .make()
+                                        .pOnly();
+                                  }
                                 },
                                 separatorBuilder: (ctx, idx) {
                                   return HeightBox(normalHeight);
