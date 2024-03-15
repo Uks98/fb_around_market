@@ -6,9 +6,12 @@ import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'convert_location.dart';
+import 'location/s_user_location.dart';
 import 'map_add_marker_page.dart';
+import 'market_add_widgets/w_load_widget.dart';
 
 class UserMarkerSelectPage extends StatefulWidget {
   const UserMarkerSelectPage({super.key});
@@ -25,6 +28,7 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
   String? addressNameText = "";
   double? convertGPSX;
   double? convertGPSY;
+  Future<Position>? _locationFuture;
   void convertLocationData(double? x, double? y) async {
     addressNameText = (await addressName.getMapList(
         context: context,
@@ -43,6 +47,7 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
     // TODO: implement initState
     super.initState();
     convertLocationData(127.02578661133796, 37.506932467450326); // 내 위치 주소로 변경해야함
+    _locationFuture = LocationClass().getLocation(context);
   }
 
   @override
@@ -52,26 +57,47 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
     return Scaffold(
       body: Stack(
         children: [
-          NaverMap(
-            options: const NaverMapViewOptions(
-              nightModeEnable: true,
-            ),
-            onMapTapped: (x, y) {
-              convertGPSX = y.latitude;
-              convertGPSY = y.longitude;
-              convertLocationData(y.longitude, y.latitude);
-              setState(() {
-                markers.add(NMarker(
-                    id: 'userMarker', position: NLatLng(y.latitude, y.longitude)));
-                naverMapController?.addOverlayAll(markers);
-              });
-            },
-            onMapReady: (controller1) {
-              naverMapController = controller1;
-              setState(() {
-                naverMapController!.addOverlayAll(markers);
-              });
-            },
+          FutureBuilder(
+            future: _locationFuture,
+            builder: (context,future) {
+              if(future.connectionState == ConnectionState.waiting){
+                return CustomLodeWidget.loadingWidget();
+              }else if (future.hasError) {
+                // 오류 발생 시
+                return const Text("위치 정보를 불러오는 데 실패했습니다.");
+              }else{
+                final position = future.data!;
+                NCameraPosition cameraPosition = NCameraPosition(
+                  target: NLatLng(position.latitude,position.longitude),
+                  zoom: 13,
+                  bearing: 45,
+                  tilt: 0,
+                );
+                return NaverMap(
+                  options:  NaverMapViewOptions(
+                    initialCameraPosition: cameraPosition,
+                    nightModeEnable: true,
+                  ),
+                  onMapTapped: (x, y) {
+                    convertGPSX = y.latitude;
+                    convertGPSY = y.longitude;
+                    convertLocationData(y.longitude, y.latitude);
+                    setState(() {
+                      markers.add(NMarker(
+                          id: 'userMarker', position: NLatLng(y.latitude, y.longitude)));
+                      naverMapController?.addOverlayAll(markers);
+                    });
+                  },
+                  onMapReady: (controller1) {
+                    naverMapController = controller1;
+                    setState(() {
+                      naverMapController!.addOverlayAll(markers);
+                    });
+                  },
+                );
+              }
+
+            }
           ),
           Align(
             alignment: Alignment.bottomCenter,

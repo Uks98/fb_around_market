@@ -15,7 +15,6 @@ class LocationClass{
     }
     Position currentLoc = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best);
-    toastMessage(context, "정보를 불러왔습니다.");
     return currentLoc;
   }
 

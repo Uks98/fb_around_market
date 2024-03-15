@@ -4,6 +4,7 @@ import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
 import 'package:fb_around_market/logic/map/map_marker_enum/marker_enum.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/s_market_detail_page.dart';
+import 'package:fb_around_market/logic/map/market_add_widgets/w_load_widget.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:velocity_x/velocity_x.dart';
-
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'convert_location.dart';
 import 'location/s_user_location.dart';
 import 'map_add_marker_page.dart';
@@ -54,10 +55,10 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
           future: _locationFuture,
         builder: (context,future) {
             if(future.connectionState == ConnectionState.waiting){
-              return Center(child: CircularProgressIndicator(),);
+              return CustomLodeWidget.loadingWidget();
             }else if (future.hasError) {
               // 오류 발생 시
-              return Text("위치 정보를 불러오는 데 실패했습니다.");
+              return const Text("위치 정보를 불러오는 데 실패했습니다.");
             }else{
               final position = future.data!;
               NCameraPosition cameraPosition = NCameraPosition(
@@ -104,6 +105,8 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                       children: [
                         NaverMap(
                           options:  NaverMapViewOptions(
+                            nightModeEnable: true,
+                              locationButtonEnable: true,
                               initialCameraPosition: cameraPosition
                           ),
                           onMapTapped: (x, y) {},
@@ -193,9 +196,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                       ],
                     );
                   }
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return CustomLodeWidget.loadingWidget();
                 },
                 stream: FirebaseFirestore.instance.collection("mapMarker").snapshots(),
               );
@@ -206,4 +207,6 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
 
     );
   }
+
+
 }
