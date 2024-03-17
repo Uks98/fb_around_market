@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
@@ -14,9 +16,37 @@ class MyPage extends StatefulWidget {
 //유저의 리뷰를 불러오는 stream입니다.
 
 class _MyPageState extends State<MyPage> with FireBaseInitialize{
-  Stream<QuerySnapshot<Map<String,dynamic>>> streamUserFavorite(){
-    final review = firestoreInit.collection("mapMarker").doc(widget.docId).collection("reviews").orderBy("timestamp").snapshots(); //마켓에 uid만 가져와서 users uid와 매치하는 이미지를 보여주자
-    return review;
+  Stream<QuerySnapshot<Map<String, dynamic>>> streamUserFavorite() {
+    // StreamController 생성
+    final controller = StreamController<QuerySnapshot<Map<String, dynamic>>>();
+
+    // 비동기 작업을 시작하는 함수
+    Future<void> startAsyncWork() async {
+      final userId = await firestoreInit.collection("users").where(
+          "userUid", isEqualTo: userUid).get();
+      final str = userId.docs.map((e) =>
+          e.id.replaceAll("(", "").replaceAll(")", ""));
+      String convertString = str.toString().replaceAll("(", "").replaceAll(
+          ")", "");
+
+      // 여기서는 예시로 docId를 직접 넣었습니다. 실제 사용시에는 적절한 값을 설정해야 합니다.
+      final review = firestoreInit.collection("users").doc(convertString)
+          .collection("favorites").orderBy("timestamp")
+          .snapshots();
+
+      // Stream을 StreamController에 추가
+      review.listen((data) {
+        controller.add(data);
+      }, onDone: () {
+        controller.close();
+      });
+    }
+
+    // 비동기 작업 시작
+    startAsyncWork();
+
+    // 사용자에게 StreamController의 Stream 반환
+    return controller.stream;
   }
   @override
   Widget build(BuildContext context) {
