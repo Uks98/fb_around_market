@@ -5,6 +5,7 @@ import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../logic/map/map_main_add_page.dart';
+import '../my_page/my_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -21,9 +22,10 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: IndexedStack(
         index: _selectedItemPosition,
-        children: const [
+        children:  [
           AllPlaceMapPage(),
           UserMarkerSelectPage(),
+           MyPage()
         ],
       ),
       bottomNavigationBar: SnakeNavigationBar.color(
@@ -47,8 +49,9 @@ class _MainPageState extends State<MainPage> {
         currentIndex: _selectedItemPosition,
         onTap: (index) => setState(() => _selectedItemPosition = index),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Ionicons.map,size: 25,)),
-          BottomNavigationBarItem(icon: Icon(Ionicons.pencil_sharp,size: 25,)),
+          BottomNavigationBarItem(icon: Icon(Ionicons.map_outline,size: 25,)),
+          BottomNavigationBarItem(icon: Icon(Ionicons.pencil_outline,size: 25,)),
+          BottomNavigationBarItem(icon: Icon(Ionicons.person_outline,size: 25,)),
           //BottomNavigationBarItem(icon: Icon(CustomIcons.home), label: 'home'),
         ],
       ),

@@ -9,22 +9,24 @@ class DetailIconText extends StatelessWidget {
   IconData icons;
   String title;
   VoidCallback callBack;
+  Color? colors;
    DetailIconText({
     super.key,
      required this.icons,
      required this.title,
-     required this.callBack
-  });
+     required this.callBack,
+     this.colors,
+  }
+
+  );
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
-
-      },
+      onTap: callBack,
       child: Column(
         children: [
-           Icon(icons,color: Colors.black, size: 20,),
+           Icon(icons,color:colors , size: 25,),
           HeightBox(smallHeight),
           title.text.size(smallFontSize).fontWeight(FontWeight.w700).make(),
         ],

@@ -59,6 +59,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
   TextEditingController reviewTec = TextEditingController();
   String? profileImage;
   XFile? image;
+  bool isFavorite = false;
   Future<void> saveUserProfileImage()async{
     final storage = FirebaseStorage.instance;
     final storageRef = storage.ref("marketImage/").child("${DateTime.now().microsecondsSinceEpoch}_${image?.name ?? "??"}.jpg");
@@ -158,11 +159,33 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          DetailIconText(
-                            icons: Ionicons.aperture,
-                            title: "즐겨찾기",
-                            callBack: () {
-                            },
+                          //해당 부분만 rebuild
+                          StatefulBuilder(
+                            builder: (context,setState) {
+                              return DetailIconText(
+                                colors: isFavorite ? Colors.black : baseColor,
+                                icons: Ionicons.ribbon_outline,
+                                title: "즐겨찾기",
+                                callBack: () async{
+                                  final teamList = snapshot.data?.docs ?? [];
+                                  final userId = await firestoreInit.collection("users").where("userUid",isEqualTo:userUid).get();
+                                  final str = userId.docs.map((e) => e.id.replaceAll("(", "").replaceAll(")", ""));
+                                  String convertString = str.toString().replaceAll("(", "").replaceAll(")", "");
+                                  setState(()=> isFavorite = !isFavorite);
+                                  //favorite 즐겨찾기 데이터 추가
+                                  if(isFavorite == true){
+                                    for(final m in teamList){
+                                   await firestoreInit.collection("users").doc(convertString).collection("favorite").doc(widget.docId).set(
+                                          {
+                                            "favoriteItem" : MarketData.fromJson(m.data()).copyWith().toJson(),
+                                          });
+                                    }
+                                  }else{
+                                    await firestoreInit.collection("users").doc(convertString).collection("favorite").doc(widget.docId).delete();
+                                  }
+                                },
+                              );
+                            }
                           ),
                           DetailIconText(
                             icons: Ionicons.navigate_outline,
@@ -443,7 +466,6 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                                                             backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
                                                                           ),
                                                                           WidthBox(normalWidth),
-                                                                          "작성시간 ${item[index1]["email"].toString()}".text.make()
                                                                         ],
                                                                       ).pOnly(left: detailLeftRightPadding);
                                                                     }
@@ -451,7 +473,8 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                                                   }
                                                               ),
 
-                                                              "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),],),
+                                                              "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),
+                                                            ],),
                                                           HeightBox(normalHeight),
                                                           ReviewLogic.returnStar(item[index1]["score"]).pOnly(left: 20),
                                                           HeightBox(bigHeight),

@@ -201,12 +201,8 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                 stream: FirebaseFirestore.instance.collection("mapMarker").snapshots(),
               );
             }
-
         }
       ),
-
     );
   }
-
-
 }
