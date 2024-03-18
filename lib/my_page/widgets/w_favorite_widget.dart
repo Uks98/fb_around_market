@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-import '../color/color_box.dart';
-import '../size_valiable/utill_size.dart';
+import '../../color/color_box.dart';
+import '../../size_valiable/utill_size.dart';
 
 class FavoriteWidget extends StatelessWidget {
   final String imagePath;
@@ -29,9 +29,9 @@ class FavoriteWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                "# $categories".text.size(smallFontSize).color(Colors.grey[800]).make(),
+                "#$categories".replaceAll("(", "").replaceAll(")","").text.size(smallFontSize).color(Colors.grey[800]).make(),
                 marketName.text.fontWeight(FontWeight.w700).color(Colors.white).size(normalFontSize).make(),
-                kindOfCash.text.size(smallFontSize).color(Colors.grey[800]).make(),
+                kindOfCash.text.size(smallFontSize).color(Colors.grey[800]).color(Colors.white).make(),
               ],
             ).pOnly(top: 0)
           ],

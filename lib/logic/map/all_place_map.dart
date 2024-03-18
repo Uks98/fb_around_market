@@ -17,6 +17,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'convert_location.dart';
 import 'location/s_user_location.dart';
 import 'map_add_marker_page.dart';
+import 'map_logic/map_logic.dart';
 import 'market_add_data/map_marker_data.dart';
 
 class AllPlaceMapPage extends StatefulWidget {
@@ -36,7 +37,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
 
   Future<Position>? _locationFuture;
   Stream<QuerySnapshot> streamMapMarker() {
-    return firestoreInit.collection("mapMarker").snapshots();
+    return firestoreInit.collection("mapMarker").orderBy().snapshots();
   }
 
 
@@ -81,16 +82,22 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                     final geoPointX = (markerData)["gpsX"];
                     final geoPointY = (markerData)["gpsY"];
 
+                    final _latLng = NLatLng(position.latitude, position.longitude);
+                    final _loadMarketLocation = NLatLng(double.parse(geoPointY.toString()), double.parse(geoPointX.toString()));
+                    final distance = _latLng.distanceTo(_loadMarketLocation).round();
+
+
                     NMarker marker = NMarker(
                       icon: MarkerIcon.markerConvertWithMenu(markerData),
                       id: markerData["markerId"],
-                      position: NLatLng(geoPointY, geoPointX),
+                      position: NLatLng(geoPointY, geoPointX,),
                     );
                     marker.setOnTapListener(
                           (overlay) => Navigator.of(context).push(
                         MaterialPageRoute(
                             builder: (context) {
                               return MarketDetailPage(gpsX: geoPointX,gpsY: geoPointY,id : markerData["markerId"],uid : markerData["uid"],docId : doc.id, dayOfWeek: markerData["dayOfWeek"],
+                                distance: distance,
                                 //데이터 넘겨서 매칭 되는 요일만 색상 변경
                               );
                             }
@@ -106,6 +113,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                         NaverMap(
                           options:  NaverMapViewOptions(
                             nightModeEnable: true,
+                              symbolScale: 1.2,
                               locationButtonEnable: true,
                               initialCameraPosition: cameraPosition
                           ),
@@ -123,7 +131,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              items.isNotEmpty ?   Container(
+                              items.isNotEmpty ? Container(
                                 width: MediaQuery.of(context).size.width,
                                 color: Colors.transparent,
                                 child:  CarouselSlider.builder(
@@ -132,8 +140,9 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                                     onPageChanged: (index, _){
                                       naverMapController?.updateCamera(
                                           NCameraUpdate.withParams(
+                                            tilt: 0,
+                                            zoom: 18,
                                             target: NLatLng(double.parse(items[index].gpsY.toString()), double.parse(items[index].gpsX.toString(),),),
-                                            bearing: 180,
                                           )
                                       );
                                     },
@@ -146,6 +155,11 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                                   ),
                                   itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) {
                                     final mainSumImage = items[itemIndex].categoryImage.toString().replaceAll("(", "").replaceAll(")","");
+                                    final position = future.data!;
+                                    final latLng = NLatLng(position.latitude, position.longitude);
+                                    final loadMarketLocation = NLatLng(double.parse(items[itemIndex].gpsY.toString()), double.parse(items[itemIndex].gpsX.toString()));
+                                    final distance = latLng.distanceTo(loadMarketLocation).round();
+
                                     return GestureDetector(
                                       onTap: (){
 
@@ -168,18 +182,19 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   HeightBox(bigHeight),
-                                                  "# ${items[itemIndex].categories[0].toString()}".text.color(Colors.grey[400]).make(),
+                                                  "# ${items[itemIndex].categories.join().toString().replaceAll("(", "").replaceAll(")"," ")}".text.color(Colors.grey[400]).make(),
                                                   HeightBox(normalHeight),
                                                   "가게 이름 : ${items[itemIndex].marketName.toString()}".text.color(Colors.white).size(bigFontSize).fontWeight(FontWeight.w700).make(),
                                                   HeightBox(normalHeight),
                                                   "가게 위치 : ${items[itemIndex].locationName.toString()}".text.color(Colors.white).make(),
                                                   HeightBox(biggestHeight + 5),
                                                   "💬 리뷰 : 0개".text.color(Colors.white).make(),
+                                                  HeightBox(smallHeight),
+                                                  "📍 거리 : ${MapLogic.distanceConverter(distance)}".text.color(Colors.white).make(),
                                                 ],
                                               )
                                             ],
                                           ),
-
                                           HeightBox(biggestHeight),
                                         ],
                                       ),).width(MediaQuery.of(context).size.width /1.2,).height(200).color(cardColor).withRounded(value: biggestHeight).make(),

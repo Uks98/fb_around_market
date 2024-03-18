@@ -318,7 +318,8 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                           if (isSelected) {
                             paymentSelected.remove(
                                 payType[index].replaceAll("(", "").replaceAll(
-                                    ")", ""));
+                                    ")", "")
+                            );
                           } else {
                             paymentSelected.add(
                                 payType[index].replaceAll("(", "").replaceAll(

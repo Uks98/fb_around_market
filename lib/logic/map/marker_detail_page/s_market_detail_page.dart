@@ -19,6 +19,7 @@ import 'package:velocity_x/velocity_x.dart';
 
 import '../../../login/login_riv_state.dart';
 import '../../image_compress.dart';
+import '../map_logic/map_logic.dart';
 import '../market_add_data/map_marker_data.dart';
 import '../market_add_widgets/button_widgets.dart';
 import '../market_add_widgets/w_market_info.dart';
@@ -32,8 +33,9 @@ class MarketDetailPage extends ConsumerStatefulWidget{
   String uid;
   String docId;
   List<dynamic> dayOfWeek;
+  int? distance;
 
-  MarketDetailPage({super.key, required this.gpsX, required this.gpsY,required this.id,required this.uid,required this.docId,required this.dayOfWeek});
+  MarketDetailPage({super.key, required this.gpsX, required this.gpsY,required this.id,required this.uid,required this.docId,required this.dayOfWeek,this.distance});
 
   @override
   ConsumerState<MarketDetailPage> createState() => _MarketDetailPageConsumerState();
@@ -140,13 +142,15 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  "${userDataAdapter?.map((e) => e.data()["userId"])}님이 등록하셨어요.".text.color(greyFontColor).make(),
+                                  "${userDataAdapter?.map((e) => e.data()["userId"]).join()}님이 등록하셨어요.".text.color(greyFontColor).make(),
                                   HeightBox(smallHeight),
                                   "${marketData?["marketName"] == "" ? "매장 이름이 없어요!" : marketData?["marketName"]}"
                                       .text
                                       .fontWeight(FontWeight.w700)
                                       .size(biggestFontSize)
                                       .make(),
+                                  HeightBox(smallHeight),
+                                  "현재 위치에서 ${MapLogic.distanceConverter(widget.distance ?? 123131313)}".text.color(Colors.grey[600]).make()
                                 ],
                               ),
                             ],
@@ -427,89 +431,91 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                         StreamBuilder(stream: streamReview(), builder: (context,snapshot){
                           if(snapshot.hasData){
                             final item = snapshot.data?.docs ?? [];
-                          return SizedBox(
-                            width: 670,
-                            height: 300,
-                            child: ListView.separated(
-                                shrinkWrap: false,
-                                itemBuilder: (context, index1) {
-                                  if(snapshot.hasData){
-                                    return GestureDetector(
-                                        onTap: () {},
-                                        child: VxBox(
-                                          child: InkWell(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(
-                                                  width : 400,
-                                                  child: Row(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                    children: [
-                                                      Column(
+                            if(item.isNotEmpty){
+                              return SizedBox(
+                                width: 670,
+                                height: 300,
+                                child: ListView.separated(
+                                    shrinkWrap: false,
+                                    itemBuilder: (context, index1) {
+                                      if(snapshot.hasData){
+                                        return GestureDetector(
+                                            onTap: () {},
+                                            child: VxBox(
+                                              child: InkWell(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width : 400,
+                                                      child: Row(
                                                         crossAxisAlignment:
                                                         CrossAxisAlignment.start,
                                                         children: [
-                                                          Row(
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                            CrossAxisAlignment.start,
                                                             children: [
-                                                              StreamBuilder(
-                                                                  stream: streamProfileInfo(),
-                                                                  builder: (context, snapshot) {
-                                                                    if(snapshot.hasData){
-                                                                      final userDataAdapter = snapshot.data?.docs;
-                                                                      final userData = userDataAdapter?.map((e) => e.data()["profileImage"]);
-                                                                      return Row(
-                                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                                        children: [
-                                                                          CircleAvatar(
-                                                                            radius: 20,
-                                                                            backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
-                                                                          ),
-                                                                          WidthBox(normalWidth),
-                                                                        ],
-                                                                      ).pOnly(left: detailLeftRightPadding);
-                                                                    }
-                                                                    return Container();
-                                                                  }
-                                                              ),
+                                                              Row(
+                                                                children: [
+                                                                  StreamBuilder(
+                                                                      stream: streamProfileInfo(),
+                                                                      builder: (context, snapshot) {
+                                                                        if(snapshot.hasData){
+                                                                          final userDataAdapter = snapshot.data?.docs;
+                                                                          final userData = userDataAdapter?.map((e) => e.data()["profileImage"]);
+                                                                          return Row(
+                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 20,
+                                                                                backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
+                                                                              ),
+                                                                              WidthBox(normalWidth),
+                                                                            ],
+                                                                          ).pOnly(left: detailLeftRightPadding);
+                                                                        }
+                                                                        return Container();
+                                                                      }
+                                                                  ),
 
-                                                              "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),
-                                                            ],),
-                                                          HeightBox(normalHeight),
-                                                          ReviewLogic.returnStar(item[index1]["score"]).pOnly(left: 20),
-                                                          HeightBox(bigHeight),
+                                                                  "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),
+                                                                ],),
+                                                              HeightBox(normalHeight),
+                                                              ReviewLogic.returnStar(item[index1]["score"]).pOnly(left: 20),
+                                                              HeightBox(bigHeight),
 
-                                                          "${item[index1]["review"]}".text.size(bigFontSize).fontWeight(FontWeight.w700).make().pOnly(left: 20),
-                                                          HeightBox(bigHeight),
+                                                              "${item[index1]["review"]}".text.size(bigFontSize).fontWeight(FontWeight.w700).make().pOnly(left: 20),
+                                                              HeightBox(bigHeight),
+                                                            ],
+                                                          ),
                                                         ],
                                                       ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ).p(normalWidth),
-                                          ),
-                                        ).color(reviewPoPUp).withRounded(value: normalWidth).make()
-                                    );
-                                  }
-                                  else if(!snapshot.hasData){
-                                    return VxBox(
-                                        child:Center(child: "📷 리뷰를 작성해주세요!".text.fontWeight(FontWeight.w700).size(bigFontSize).color(Colors.grey[500]).make())
-                                    )
-                                        .color(highGreyColor)
-                                        .width(mediaWidth - 50)
-                                        .height(120)
-                                        .withRounded(value: normalHeight)
-                                        .make()
-                                        .pOnly();
-                                  }
-                                },
-                                separatorBuilder: (ctx, idx) {
-                                  return HeightBox(normalHeight);
-                                },
-                                itemCount: item.length),
-                          );
+                                                    ),
+                                                  ],
+                                                ).p(normalWidth),
+                                              ),
+                                            ).color(reviewPoPUp).withRounded(value: normalWidth).make()
+                                        );
+                                      }
+                                      else if(!snapshot.hasData){
+                                        return VxBox(
+                                            child:Center(child: "📷 리뷰를 작성해주세요!".text.fontWeight(FontWeight.w700).size(bigFontSize).color(Colors.grey[500]).make())
+                                        )
+                                            .color(highGreyColor)
+                                            .width(mediaWidth - 50)
+                                            .height(120)
+                                            .withRounded(value: normalHeight)
+                                            .make()
+                                            .pOnly();
+                                      }
+                                    },
+                                    separatorBuilder: (ctx, idx) {
+                                      return HeightBox(normalHeight);
+                                    },
+                                    itemCount: item.length),
+                              );
+                            }
                           }
                           return VxBox(
                               child:Center(child: "📷 리뷰를 작성해주세요!".text.fontWeight(FontWeight.w700).size(bigFontSize).color(Colors.grey[500]).make())

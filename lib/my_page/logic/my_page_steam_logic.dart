@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
+import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 
 class MyPageStreamLogic with FireBaseInitialize{
   Stream<QuerySnapshot<Map<String, dynamic>>> streamUserFavorite() {
@@ -34,5 +35,9 @@ class MyPageStreamLogic with FireBaseInitialize{
   ///유저가 작성한 길거리 음식점의 목록들을 불러오는 스트림입니다.
   Stream<QuerySnapshot<Map<String, dynamic>>> streamUserWriteList() {
     return firestoreInit.collection("mapMarker").where("uid", isEqualTo : userUid).snapshots();
+  }
+  ///유저의 프로필 정보를 불러오는 스트림입니다.
+  Stream<QuerySnapshot<Map<String,dynamic>>> streamProfileInfo(){
+    return FirebaseFirestore.instance.collection("users").where("userUid",isEqualTo:userUid).snapshots();
   }
 }
