@@ -37,7 +37,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
 
   Future<Position>? _locationFuture;
   Stream<QuerySnapshot> streamMapMarker() {
-    return firestoreInit.collection("mapMarker").orderBy().snapshots();
+    return firestoreInit.collection("mapMarker").orderBy("distance",descending: true).snapshots();
   }
 
 

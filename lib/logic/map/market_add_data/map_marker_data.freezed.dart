@@ -32,6 +32,7 @@ mixin _$MarketData {
   List<String?> get dayOfWeek => throw _privateConstructorUsedError;
   double? get gpsX => throw _privateConstructorUsedError;
   double? get gpsY => throw _privateConstructorUsedError;
+  int? get distance => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -57,7 +58,8 @@ abstract class $MarketDataCopyWith<$Res> {
       List<String?> categories,
       List<String?> dayOfWeek,
       double? gpsX,
-      double? gpsY});
+      double? gpsY,
+      int? distance});
 }
 
 /// @nodoc
@@ -85,6 +87,7 @@ class _$MarketDataCopyWithImpl<$Res, $Val extends MarketData>
     Object? dayOfWeek = null,
     Object? gpsX = freezed,
     Object? gpsY = freezed,
+    Object? distance = freezed,
   }) {
     return _then(_value.copyWith(
       uid: freezed == uid
@@ -135,6 +138,10 @@ class _$MarketDataCopyWithImpl<$Res, $Val extends MarketData>
           ? _value.gpsY
           : gpsY // ignore: cast_nullable_to_non_nullable
               as double?,
+      distance: freezed == distance
+          ? _value.distance
+          : distance // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -159,7 +166,8 @@ abstract class _$$MarketDataImplCopyWith<$Res>
       List<String?> categories,
       List<String?> dayOfWeek,
       double? gpsX,
-      double? gpsY});
+      double? gpsY,
+      int? distance});
 }
 
 /// @nodoc
@@ -185,6 +193,7 @@ class __$$MarketDataImplCopyWithImpl<$Res>
     Object? dayOfWeek = null,
     Object? gpsX = freezed,
     Object? gpsY = freezed,
+    Object? distance = freezed,
   }) {
     return _then(_$MarketDataImpl(
       uid: freezed == uid
@@ -235,6 +244,10 @@ class __$$MarketDataImplCopyWithImpl<$Res>
           ? _value.gpsY
           : gpsY // ignore: cast_nullable_to_non_nullable
               as double?,
+      distance: freezed == distance
+          ? _value.distance
+          : distance // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -254,7 +267,8 @@ class _$MarketDataImpl implements _MarketData {
       final List<String?> categories = const [],
       final List<String?> dayOfWeek = const [],
       this.gpsX,
-      this.gpsY})
+      this.gpsY,
+      this.distance})
       : _kindOfCash = kindOfCash,
         _categories = categories,
         _dayOfWeek = dayOfWeek;
@@ -308,10 +322,12 @@ class _$MarketDataImpl implements _MarketData {
   final double? gpsX;
   @override
   final double? gpsY;
+  @override
+  final int? distance;
 
   @override
   String toString() {
-    return 'MarketData(uid: $uid, markerId: $markerId, locationName: $locationName, marketName: $marketName, marketType: $marketType, kindOfCash: $kindOfCash, categoryImage: $categoryImage, imagePath: $imagePath, categories: $categories, dayOfWeek: $dayOfWeek, gpsX: $gpsX, gpsY: $gpsY)';
+    return 'MarketData(uid: $uid, markerId: $markerId, locationName: $locationName, marketName: $marketName, marketType: $marketType, kindOfCash: $kindOfCash, categoryImage: $categoryImage, imagePath: $imagePath, categories: $categories, dayOfWeek: $dayOfWeek, gpsX: $gpsX, gpsY: $gpsY, distance: $distance)';
   }
 
   @override
@@ -339,7 +355,9 @@ class _$MarketDataImpl implements _MarketData {
             const DeepCollectionEquality()
                 .equals(other._dayOfWeek, _dayOfWeek) &&
             (identical(other.gpsX, gpsX) || other.gpsX == gpsX) &&
-            (identical(other.gpsY, gpsY) || other.gpsY == gpsY));
+            (identical(other.gpsY, gpsY) || other.gpsY == gpsY) &&
+            (identical(other.distance, distance) ||
+                other.distance == distance));
   }
 
   @JsonKey(ignore: true)
@@ -357,7 +375,8 @@ class _$MarketDataImpl implements _MarketData {
       const DeepCollectionEquality().hash(_categories),
       const DeepCollectionEquality().hash(_dayOfWeek),
       gpsX,
-      gpsY);
+      gpsY,
+      distance);
 
   @JsonKey(ignore: true)
   @override
@@ -386,7 +405,8 @@ abstract class _MarketData implements MarketData {
       final List<String?> categories,
       final List<String?> dayOfWeek,
       final double? gpsX,
-      final double? gpsY}) = _$MarketDataImpl;
+      final double? gpsY,
+      final int? distance}) = _$MarketDataImpl;
 
   factory _MarketData.fromJson(Map<String, dynamic> json) =
       _$MarketDataImpl.fromJson;
@@ -415,6 +435,8 @@ abstract class _MarketData implements MarketData {
   double? get gpsX;
   @override
   double? get gpsY;
+  @override
+  int? get distance;
   @override
   @JsonKey(ignore: true)
   _$$MarketDataImplCopyWith<_$MarketDataImpl> get copyWith =>

@@ -18,19 +18,22 @@ final marketIndex = StateProvider<int>((ref) => 0);
 class MarkerAddPage extends StatefulWidget {
   double gpsX;
   double gpsY;
+  double? currentX; //현재 위치
+  double? currentY; //현재 위치
   String placeAddress;
   String? imagePath;
   String? uid;
   String? docId;
 
-  MarkerAddPage({
-    super.key,
-    this.uid,
-    this.docId,
-    required this.gpsX,
-    required this.gpsY,
-    required this.placeAddress,
-  });
+  MarkerAddPage(
+      {super.key,
+      this.uid,
+      this.docId,
+      required this.gpsX,
+      required this.gpsY,
+      required this.placeAddress,
+      this.currentX,
+      this.currentY});
 
   @override
   State<MarkerAddPage> createState() => _MarkerAddPageState();
@@ -40,6 +43,8 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
   double get gpsY => widget.gpsY;
 
   double get gpsX => widget.gpsX;
+
+  int? distance; //거리 계산
 
   //매장 리스트
   final List<String> _marketType = ['길거리', '매장', '편의점'];
@@ -76,12 +81,8 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
 
   @override
   Widget build(BuildContext context) {
-    final mediaWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final marker =
-    NMarker(id: 'test', position: NLatLng(widget.gpsY, widget.gpsX));
+    final mediaWidth = MediaQuery.of(context).size.width;
+    final marker = NMarker(id: 'test', position: NLatLng(widget.gpsY, widget.gpsX));
 
     final cameraPosition = NCameraPosition(
       target: NLatLng(gpsY, gpsX),
@@ -112,6 +113,14 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                       controller1.addOverlay(marker);
                     });
                     //print(marker);
+                    final _latLng = NLatLng(widget.gpsY, widget.gpsX);
+                    print(_latLng);
+                    final _loadMarketLocation = NLatLng(
+                        double.parse(widget.currentY.toString()),
+                        double.parse(widget.currentX.toString()));
+                    print(_latLng);
+                    distance = _latLng.distanceTo(_loadMarketLocation).round();
+                    print("이 거리는/*???*/${distance}");
                   },
                 ),
               ),
@@ -154,11 +163,11 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                               : baseColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5.0),
-                          ),),
+                          ),
+                        ),
                         onPressed: () async {
                           final mapData = MarketData(
-                            markerId: DateTime
-                                .now()
+                            markerId: DateTime.now()
                                 .microsecondsSinceEpoch
                                 .toString(),
                             uid: userUid,
@@ -171,15 +180,21 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                             categories: categoriesSelected,
                             categoryImage: categoriesImage[0],
                             dayOfWeek: dayOfWeekSelectList,
+                            distance : distance
                           );
-                          await firestoreInit.collection("mapMarker").add(
-                              mapData.toJson());
+                          await firestoreInit
+                              .collection("mapMarker")
+                              .add(mapData.toJson());
                           context.goNamed("main");
                         },
-                        child: "가게 등록하기".text.size(20).fontWeight(FontWeight
-                            .w700).color(_marketNameController.text.isEmpty
-                            ? greyFontColor
-                            : Colors.white).make(),
+                        child: "가게 등록하기"
+                            .text
+                            .size(20)
+                            .fontWeight(FontWeight.w700)
+                            .color(_marketNameController.text.isEmpty
+                                ? greyFontColor
+                                : Colors.white)
+                            .make(),
                       ),
                     ),
                   ),
@@ -210,31 +225,27 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        "메뉴 카테고리"
-            .text
-            .size(normalFontSize)
-            .fontWeight(FontWeight.w700)
-            .make(),
+        "메뉴 카테고리".text.size(normalFontSize).fontWeight(FontWeight.w700).make(),
         HeightBox(biggestHeight),
         VxBox(
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, index) {
-              bool isSelected = categoriesSelected.contains(
-                  categories[index].keys.toString());
+              bool isSelected = categoriesSelected
+                  .contains(categories[index].keys.toString());
               return GestureDetector(
                   onTap: () {
                     setState(() {
                       if (isSelected) {
-                        categoriesSelected.remove(
-                            categories[index].keys.toString());
-                        categoriesImage.remove(
-                            categories[index].values.toString());
+                        categoriesSelected
+                            .remove(categories[index].keys.toString());
+                        categoriesImage
+                            .remove(categories[index].values.toString());
                       } else {
-                        categoriesSelected.add(
-                            categories[index].keys.toString());
-                        categoriesImage.add(
-                            categories[index].values.toString());
+                        categoriesSelected
+                            .add(categories[index].keys.toString());
+                        categoriesImage
+                            .add(categories[index].values.toString());
                       }
                     });
                   },
@@ -261,9 +272,8 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                               .replaceAll("(", "")
                               .text
                               .fontWeight(FontWeight.w700)
-                              .color(isSelected
-                              ? selectColor
-                              : categoryFontColor)
+                              .color(
+                                  isSelected ? selectColor : categoryFontColor)
                               .make(),
                         ),
                       ],
@@ -272,8 +282,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                       .roundedFull
                       .width(mediaWidth / 5)
                       .border(
-                      color: isSelected ? baseColor : greyColor,
-                      width: 2)
+                          color: isSelected ? baseColor : greyColor, width: 2)
                       .margin(const EdgeInsets.all(3))
                       .make());
             },
@@ -316,14 +325,13 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                       onTap: () {
                         setState(() {
                           if (isSelected) {
-                            paymentSelected.remove(
-                                payType[index].replaceAll("(", "").replaceAll(
-                                    ")", "")
-                            );
+                            paymentSelected.remove(payType[index]
+                                .replaceAll("(", "")
+                                .replaceAll(")", ""));
                           } else {
-                            paymentSelected.add(
-                                payType[index].replaceAll("(", "").replaceAll(
-                                    ")", ""));
+                            paymentSelected.add(payType[index]
+                                .replaceAll("(", "")
+                                .replaceAll(")", ""));
                           }
                         });
                       },
@@ -340,8 +348,8 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                           .width(mediaWidth / 3)
                           .height(20)
                           .border(
-                          color: isSelected ? baseColor : greyColor,
-                          width: 2)
+                              color: isSelected ? baseColor : greyColor,
+                              width: 2)
                           .make(),
                     );
                   },
@@ -378,15 +386,17 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
-                    bool isSelected = dayOfWeekSelectList.contains(
-                        dayOfWeekList[index].toString());
+                    bool isSelected = dayOfWeekSelectList
+                        .contains(dayOfWeekList[index].toString());
                     return GestureDetector(
                       onTap: () {
                         setState(() {
                           if (isSelected) {
-                            dayOfWeekSelectList.remove(dayOfWeekList[index].toString());
+                            dayOfWeekSelectList
+                                .remove(dayOfWeekList[index].toString());
                           } else {
-                            dayOfWeekSelectList.add(dayOfWeekList[index].toString());
+                            dayOfWeekSelectList
+                                .add(dayOfWeekList[index].toString());
                           }
                         });
                       },
@@ -402,8 +412,8 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                           .roundedFull
                           .width(mediaWidth / 8)
                           .border(
-                          color: isSelected ? selectColor : greyFontColor,
-                          width: 1)
+                              color: isSelected ? selectColor : greyFontColor,
+                              width: 1)
                           .make(),
                     );
                   },
@@ -444,21 +454,21 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                         });
                       },
                       child: VxBox(
-                          child: Center(
-                              child: _marketType[index]
-                                  .text
-                                  .fontWeight(FontWeight.w700)
-                                  .color(_selectIndex == index
-                                  ? selectColor
-                                  : greyFontColor)
-                                  .make()))
+                              child: Center(
+                                  child: _marketType[index]
+                                      .text
+                                      .fontWeight(FontWeight.w700)
+                                      .color(_selectIndex == index
+                                          ? selectColor
+                                          : greyFontColor)
+                                      .make()))
                           .withRounded(value: normalWidth)
                           .width(mediaWidth / 3)
                           .height(20)
                           .border(
-                          color:
-                          _selectIndex == index ? baseColor : greyColor,
-                          width: 2)
+                              color:
+                                  _selectIndex == index ? baseColor : greyColor,
+                              width: 2)
                           .make(),
                     );
                   },

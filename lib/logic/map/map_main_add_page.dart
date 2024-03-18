@@ -28,6 +28,8 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
   String? addressNameText = "";
   double? convertGPSX;
   double? convertGPSY;
+
+
   Future<Position>? _locationFuture;
   void convertLocationData(double? x, double? y) async {
     addressNameText = (await addressName.getMapList(
@@ -41,7 +43,8 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
   Stream<QuerySnapshot> streamMapMarker() {
     return firestoreInit.collection("mapMarker").snapshots();
   }
-
+  double? currentGPSX;
+  double? currentGPSY;
   @override
   void initState() {
     // TODO: implement initState
@@ -60,6 +63,9 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
           FutureBuilder(
             future: _locationFuture,
             builder: (context,future) {
+              final data = future.data;
+              currentGPSX = data!.latitude;
+              currentGPSY = data.longitude;
               if(future.connectionState == ConnectionState.waiting){
                 return CustomLodeWidget.loadingWidget();
               }else if (future.hasError) {
@@ -67,6 +73,7 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
                 return const Text("위치 정보를 불러오는 데 실패했습니다.");
               }else{
                 final position = future.data!;
+
                 NCameraPosition cameraPosition = NCameraPosition(
                   target: NLatLng(position.latitude,position.longitude),
                   zoom: 13,
@@ -120,11 +127,12 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
                         .fontWeight(FontWeight.w700)
                         .make()
                         .pOnly(top: 15, left: 20),
+                    // 마커 표시시 위치 정보가 보여 지는 팝업
                     AddressPopupWidget(addressNameText: addressNameText).pOnly(
                       top: 70,
                       left: 20,
-                    ), // 마커 표시시 위치 정보가 보여 지는 팝업
-                    AddLocationMarkerButton(mediaWidthSize: mediaWidthSize, convertGPSY: convertGPSY, convertGPSX: convertGPSX, addressNameText: addressNameText).pOnly(top: 150,left: 20),
+                    ),
+                    AddLocationMarkerButton(mediaWidthSize: mediaWidthSize, convertGPSY: convertGPSY, convertGPSX: convertGPSX, addressNameText: addressNameText,currentGPSX: currentGPSX,currentGPSY: currentGPSY,).pOnly(top: 150,left: 20),
                   ],
                 ),
               ],
@@ -144,11 +152,14 @@ class AddLocationMarkerButton extends StatelessWidget {
     required this.convertGPSY,
     required this.convertGPSX,
     required this.addressNameText,
+    this.currentGPSX, this.currentGPSY,
   });
 
   final double mediaWidthSize;
   final double? convertGPSY;
   final double? convertGPSX;
+  final double? currentGPSX;
+  final double? currentGPSY;
   final String? addressNameText;
 
   @override
@@ -176,6 +187,8 @@ class AddLocationMarkerButton extends StatelessWidget {
                               placeAddress:
                               addressNameText!,
                               uid: "aaa",
+                                currentX: currentGPSX,
+                                currentY:currentGPSY,
                             );
                         } ,),);
               },

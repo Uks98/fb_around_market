@@ -19,6 +19,7 @@ sealed class MarketData with _$MarketData{
 
     double? gpsX,
     double? gpsY,
+    int? distance,
   }) = _MarketData;
   factory MarketData.fromJson(Map<String,dynamic> json ) => _$MarketDataFromJson(json);
 }

@@ -29,11 +29,14 @@ final convertString = StateProvider<String?>((ref) => "");
 class MarketDetailPage extends ConsumerStatefulWidget{
   double gpsX;
   double gpsY;
+
+
   String id;
   String uid;
   String docId;
   List<dynamic> dayOfWeek;
   int? distance;
+
 
   MarketDetailPage({super.key, required this.gpsX, required this.gpsY,required this.id,required this.uid,required this.docId,required this.dayOfWeek,this.distance});
 
@@ -77,23 +80,6 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
     });
   }
 
-  bool isTrueWeek(){
-    bool isTrue = false;
-    int getLength = widget.dayOfWeek.length -1;
-    for(final x in weekList){
-      for(int i = 0; i <= getLength; i++){
-        if( x == widget.dayOfWeek[i]) {
-          isTrue = true;
-          break;
-        }
-        else{
-          isTrue = false;
-        }
-      }
-    }
-    print(isTrue);
-    return isTrue;
-  }
   @override
   Widget build(BuildContext context) {
     print(widget.dayOfWeek);

@@ -23,7 +23,6 @@ class AddressName{
       }
       for(final _res in res["documents"]){
         var roadAddress = _res['address'] as Map<String, dynamic>?;
-        print("aaaaaaaaaaaaaa${roadAddress}");
         if(roadAddress != null){
           addressName = (roadAddress['address_name'].toString());
         }
