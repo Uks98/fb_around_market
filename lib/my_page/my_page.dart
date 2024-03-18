@@ -3,8 +3,15 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
+import 'package:fb_around_market/my_page/logic/my_page_steam_logic.dart';
+import 'package:fb_around_market/my_page/w_favorite_widget.dart';
+import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:velocity_x/velocity_x.dart';
+
+import '../logic/map/market_add_data/map_marker_data.dart';
+import '../logic/map/market_add_widgets/w_load_widget.dart';
 
 
 class MyPage extends StatefulWidget {
@@ -16,38 +23,9 @@ class MyPage extends StatefulWidget {
 //유저의 리뷰를 불러오는 stream입니다.
 
 class _MyPageState extends State<MyPage> with FireBaseInitialize{
-  Stream<QuerySnapshot<Map<String, dynamic>>> streamUserFavorite() {
-    // StreamController 생성
-    final controller = StreamController<QuerySnapshot<Map<String, dynamic>>>();
+  MyPageStreamLogic myPageStreamLogic = MyPageStreamLogic(); // mypage에 사용되는 stream 관련 로직
 
-    // 비동기 작업을 시작하는 함수
-    Future<void> startAsyncWork() async {
-      final userId = await firestoreInit.collection("users").where(
-          "userUid", isEqualTo: userUid).get();
-      final str = userId.docs.map((e) =>
-          e.id.replaceAll("(", "").replaceAll(")", ""));
-      String convertString = str.toString().replaceAll("(", "").replaceAll(
-          ")", "");
 
-      // 여기서는 예시로 docId를 직접 넣었습니다. 실제 사용시에는 적절한 값을 설정해야 합니다.
-      final review = firestoreInit.collection("users").doc(convertString)
-          .collection("favorites").orderBy("timestamp")
-          .snapshots();
-
-      // Stream을 StreamController에 추가
-      review.listen((data) {
-        controller.add(data);
-      }, onDone: () {
-        controller.close();
-      });
-    }
-
-    // 비동기 작업 시작
-    startAsyncWork();
-
-    // 사용자에게 StreamController의 Stream 반환
-    return controller.stream;
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,7 +48,12 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize{
         ],
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          "즐겨찾기".text.make(),
+          HeightBox(smallHeight),
+          "내가 좋아하는 가게는 ?".text.size(bigFontSize).fontWeight(FontWeight.w700).make(),
+          HeightBox(biggestHeight),
           Expanded(
             child: ListView.builder(
               itemBuilder: (context, index) {
@@ -78,22 +61,79 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize{
                 if (index == 0) {
 
                 }else if(index == 1){
-                  return StreamBuilder(stream: streamUserFavorite(), builder: (context,snapshot){
-                    return Container();
-                  });
+
+                  return StreamBuilder(stream: myPageStreamLogic.streamUserFavorite(), builder: (context,snapshot){
+                    final favoriteList = snapshot.data?.docs ?? [];
+                    if (snapshot.hasData){
+                      return SizedBox(
+                        height: 100,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context,index){
+                                    //final mainSumImage = favoriteList[index]["categoryImage"].toString().replaceAll("(", "").replaceAll(")","");
+                                    final favoriteIndex = favoriteList[index];
+                                return FavoriteWidget(
+                                    imagePath : favoriteIndex["favoriteItem"]["categoryImage"].toString().replaceAll("(", "").replaceAll(")",""),
+                                    categories : favoriteIndex["favoriteItem"]["categories"][0],
+                                    marketName : favoriteIndex["favoriteItem"]["marketName"],
+                                    kindOfCash : favoriteIndex["favoriteItem"]["kindOfCash"][0]
+
+                                );
+                              }, separatorBuilder: (ctx,index)=>WidthBox(bigWidth), itemCount: favoriteList.length,),
+                            ),
+                          ],
+                        ),
+                      );
+                    }else if(snapshot.data!.docs.isEmpty){
+                      return CustomLodeWidget.loadingWidget();
+                    }
+                    return CustomLodeWidget.loadingWidget();
+                  }
+                  );
                 } else if (index == 2) {
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 10,),
-                      Container(
-                        child: ListView.builder(
-                          itemBuilder: (context, index) {
+                      HeightBox(biggestHeight),
+                      "내 가게".text.make(),
+                      HeightBox(smallHeight),
+                      "내가 추가한 가게 알아보기".text.size(bigFontSize).fontWeight(FontWeight.w700).make(),
+                      HeightBox(biggestHeight),
+                      StreamBuilder(stream: myPageStreamLogic.streamUserWriteList(), builder: (context,snapshot){
+                        final userWriteList = snapshot.data?.docs ?? [];
+                        if (snapshot.hasData){
 
-                          },
-                          itemCount: 4,
-                          physics: NeverScrollableScrollPhysics(),
-                        ),
-                        height: 600,
+                          return SizedBox(
+                            height: 100,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: ListView.separated(
+                                    shrinkWrap: true,
+                                    scrollDirection: Axis.horizontal,
+                                    itemBuilder: (context,index){
+                                      //final mainSumImage = favoriteList[index]["categoryImage"].toString().replaceAll("(", "").replaceAll(")","");
+                                      final userWriteListIndex = userWriteList[index];
+                                      return FavoriteWidget(
+                                          imagePath : userWriteListIndex["categoryImage"].toString().replaceAll("(", "").replaceAll(")",""),
+                                          categories : userWriteListIndex["categories"][0],
+                                          marketName : userWriteListIndex["marketName"],
+                                          kindOfCash : userWriteListIndex["kindOfCash"][0]
+                                      );
+                                    }, separatorBuilder: (ctx,index)=>WidthBox(bigWidth), itemCount: userWriteList.length,),
+                                ),
+                              ],
+                            ),
+                          );
+                        }else if(snapshot.data!.docs.isEmpty){
+                          return CustomLodeWidget.loadingWidget();
+                        }
+                        return CustomLodeWidget.loadingWidget();
+                      }
                       ),
                     ],
                   );
@@ -104,7 +144,7 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize{
             ),
           ),
         ],
-      ),
+      ).pOnly(left: 20),
     );
   }
   Widget campingListWidget(String imaUrl, String name, String location, String x, double width, double height) {

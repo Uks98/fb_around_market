@@ -116,7 +116,6 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                               naverMapController!.addOverlayAll(markers!);
                             });
 
-                            markers!.map((e) => e.setOnTapListener((onMarkerInfoWindow) => print(onMarkerInfoWindow.position)));
                           },
                         ),
                         Align(

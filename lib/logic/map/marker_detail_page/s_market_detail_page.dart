@@ -23,6 +23,8 @@ import '../market_add_data/map_marker_data.dart';
 import '../market_add_widgets/button_widgets.dart';
 import '../market_add_widgets/w_market_info.dart';
 
+final convertString = StateProvider<String?>((ref) => "");
+
 class MarketDetailPage extends ConsumerStatefulWidget{
   double gpsX;
   double gpsY;
@@ -163,25 +165,24 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                           StatefulBuilder(
                             builder: (context,setState) {
                               return DetailIconText(
-                                colors: isFavorite ? Colors.black : baseColor,
+                                colors: isFavorite ?  baseColor:Colors.black,
                                 icons: Ionicons.ribbon_outline,
                                 title: "즐겨찾기",
                                 callBack: () async{
                                   final teamList = snapshot.data?.docs ?? [];
                                   final userId = await firestoreInit.collection("users").where("userUid",isEqualTo:userUid).get();
-                                  final str = userId.docs.map((e) => e.id.replaceAll("(", "").replaceAll(")", ""));
-                                  String convertString = str.toString().replaceAll("(", "").replaceAll(")", "");
+                                  String convertString = userId.docs.first.id;
                                   setState(()=> isFavorite = !isFavorite);
                                   //favorite 즐겨찾기 데이터 추가
-                                  if(isFavorite == true){
                                     for(final m in teamList){
+                                      if(isFavorite == true){
                                    await firestoreInit.collection("users").doc(convertString).collection("favorite").doc(widget.docId).set(
                                           {
-                                            "favoriteItem" : MarketData.fromJson(m.data()).copyWith().toJson(),
+                                            "favoriteItem" : MarketData.fromJson(m.data()).toJson(),
                                           });
-                                    }
-                                  }else{
-                                    await firestoreInit.collection("users").doc(convertString).collection("favorite").doc(widget.docId).delete();
+                                    }else{
+                                       await firestoreInit.collection("users").doc(convertString).collection("favorite").doc(widget.docId).delete();
+                                      }
                                   }
                                 },
                               );
@@ -242,7 +243,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                               children: List.generate(weekList.length, (index) {
                                 bool isMatched = widget.dayOfWeek.contains(weekList[index]);
                                 return VxBox(
-                                    child: Center(child: "${weekList[index].toString()}".text.color(isMatched ? Colors.white: Colors.grey[200]).make())
+                                    child: Center(child: weekList[index].toString().text.color(isMatched ? Colors.white: Colors.grey[200]).make())
                                 ).size(30,30).color(isMatched ? baseColor: greyFontColor).roundedFull.make().pOnly(right: smallWidth);
                               }),
                             ).pOnly(right: 60)
