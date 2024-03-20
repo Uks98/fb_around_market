@@ -1,10 +1,10 @@
 import 'package:fb_around_market/color/color_box.dart';
-import 'package:fb_around_market/logic/map/all_place_map.dart';
+import 'package:fb_around_market/logic/map/s_all_place_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
 
-import '../logic/map/map_main_add_page.dart';
+import '../logic/map/s_map_main_add_page.dart';
 import '../my_page/my_page.dart';
 
 class MainPage extends StatefulWidget {

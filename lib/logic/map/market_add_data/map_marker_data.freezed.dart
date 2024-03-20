@@ -32,7 +32,7 @@ mixin _$MarketData {
   List<String?> get dayOfWeek => throw _privateConstructorUsedError;
   double? get gpsX => throw _privateConstructorUsedError;
   double? get gpsY => throw _privateConstructorUsedError;
-  int? get distance => throw _privateConstructorUsedError;
+  double? get distance => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -59,7 +59,7 @@ abstract class $MarketDataCopyWith<$Res> {
       List<String?> dayOfWeek,
       double? gpsX,
       double? gpsY,
-      int? distance});
+      double? distance});
 }
 
 /// @nodoc
@@ -141,7 +141,7 @@ class _$MarketDataCopyWithImpl<$Res, $Val extends MarketData>
       distance: freezed == distance
           ? _value.distance
           : distance // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as double?,
     ) as $Val);
   }
 }
@@ -167,7 +167,7 @@ abstract class _$$MarketDataImplCopyWith<$Res>
       List<String?> dayOfWeek,
       double? gpsX,
       double? gpsY,
-      int? distance});
+      double? distance});
 }
 
 /// @nodoc
@@ -247,7 +247,7 @@ class __$$MarketDataImplCopyWithImpl<$Res>
       distance: freezed == distance
           ? _value.distance
           : distance // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as double?,
     ));
   }
 }
@@ -323,7 +323,7 @@ class _$MarketDataImpl implements _MarketData {
   @override
   final double? gpsY;
   @override
-  final int? distance;
+  final double? distance;
 
   @override
   String toString() {
@@ -406,7 +406,7 @@ abstract class _MarketData implements MarketData {
       final List<String?> dayOfWeek,
       final double? gpsX,
       final double? gpsY,
-      final int? distance}) = _$MarketDataImpl;
+      final double? distance}) = _$MarketDataImpl;
 
   factory _MarketData.fromJson(Map<String, dynamic> json) =
       _$MarketDataImpl.fromJson;
@@ -436,7 +436,7 @@ abstract class _MarketData implements MarketData {
   @override
   double? get gpsY;
   @override
-  int? get distance;
+  double? get distance;
   @override
   @JsonKey(ignore: true)
   _$$MarketDataImplCopyWith<_$MarketDataImpl> get copyWith =>

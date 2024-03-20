@@ -21,7 +21,7 @@ import '../../../login/login_riv_state.dart';
 import '../../image_compress.dart';
 import '../map_logic/map_logic.dart';
 import '../market_add_data/map_marker_data.dart';
-import '../market_add_widgets/button_widgets.dart';
+import '../market_add_widgets/w_button_widgets.dart';
 import '../market_add_widgets/w_market_info.dart';
 
 final convertString = StateProvider<String?>((ref) => "");
@@ -136,7 +136,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                       .size(biggestFontSize)
                                       .make(),
                                   HeightBox(smallHeight),
-                                  "현재 위치에서 ${MapLogic.distanceConverter(widget.distance ?? 123131313)}".text.color(Colors.grey[600]).make()
+                                  "현재 위치에서 ${MapLogic.distanceConverter(widget.distance?.round() ?? 123131313)}".text.color(Colors.grey[600]).make()
                                 ],
                               ),
                             ],
@@ -281,7 +281,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                             .height(120)
                             .withRounded(value: normalHeight)
                             .make()
-                            .pOnly() : Container(
+                            .pOnly() : SizedBox(
                                width: 660,
                               height: 100,
                               child: ListView.builder(

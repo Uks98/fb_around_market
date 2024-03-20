@@ -10,6 +10,7 @@ import 'package:fb_around_market/notification_widget/w_toast_notification.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import '../logic/map/market_add_data/map_marker_data.dart';
@@ -40,7 +41,10 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize{
           style: TextStyle(color:Colors.white),
         ),
         centerTitle: true,
+        actions: [IconButton(onPressed: () async{
+          await fireBaseAuthInit.signOut();}, icon: const Icon(Ionicons.log_in_outline,size: 30,))],
       ),
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -175,7 +179,7 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize{
                         final userWriteList = snapshot.data?.docs ?? [];
                         if (snapshot.hasData){
                           if(int.parse(userWriteList.length.toString()) == 1){
-                            ToastNotification.missionWriteLen;
+                            ToastNotification.missionWriteLen(context,'축하합니다. "첫만남은 어려워" 칭호를 획득하셨습니다.');
                           }
                           return Row(
                             children: [
@@ -183,7 +187,7 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize{
                               AchievementWidget(image: 'assets/app_pro_color.png', aciName: '첫 만남은 어려워', color: baseColor,).pOnly(left: 20):
                               AchievementWidget(image: 'assets/app_pro_darks.png', aciName: '첫 만남은 어려워', color: greyFontColor,).pOnly(left: 20)
                               //AchievementWidget(image: 'assets/app_pro_color.png', aciName: '첫 만남은 어려워', color: baseColor,).pOnly(left: 20):
-                              ,AchievementWidget(image: 'assets/nice_dark.png', aciName: '첫 만남은 어려워', color: greyFontColor,).pOnly(left: 20)
+                              ,AchievementWidget(image: 'assets/nice_dark.png', aciName: '붕어빵 사냥꾼', color: greyFontColor,).pOnly(left: 20)
                             ],
                           );
                         }else if(snapshot.data!.docs.isEmpty){

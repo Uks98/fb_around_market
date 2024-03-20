@@ -6,7 +6,7 @@ import '../../../color/color_box.dart';
 import '../../../size_valiable/utill_size.dart';
 
 class MarketNameTextField extends StatelessWidget {
-  const MarketNameTextField({
+   MarketNameTextField({
     super.key,
     required TextEditingController marketNameController,
   }) : _marketNameController = marketNameController;

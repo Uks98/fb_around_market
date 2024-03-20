@@ -10,7 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'convert_location.dart';
 import 'location/s_user_location.dart';
-import 'map_add_marker_page.dart';
+import 's_map_add_marker_page.dart';
 import 'market_add_widgets/w_load_widget.dart';
 
 class UserMarkerSelectPage extends StatefulWidget {
@@ -63,8 +63,8 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
           FutureBuilder(
             future: _locationFuture,
             builder: (context,future) {
-              final data = future.data;
-              currentGPSX = data!.latitude;
+              final data = future.data!;
+              currentGPSX = data.latitude;
               currentGPSY = data.longitude;
               if(future.connectionState == ConnectionState.waiting){
                 return CustomLodeWidget.loadingWidget();
@@ -152,7 +152,8 @@ class AddLocationMarkerButton extends StatelessWidget {
     required this.convertGPSY,
     required this.convertGPSX,
     required this.addressNameText,
-    this.currentGPSX, this.currentGPSY,
+    this.currentGPSX,
+    this.currentGPSY,
   });
 
   final double mediaWidthSize;

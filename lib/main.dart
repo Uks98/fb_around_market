@@ -1,5 +1,5 @@
 import 'package:fb_around_market/color/color_box.dart';
-import 'package:fb_around_market/logic/map/all_place_map.dart';
+import 'package:fb_around_market/logic/map/s_all_place_map.dart';
 import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 import 'package:fb_around_market/main_page/s_main_page.dart';
 import 'package:firebase_core/firebase_core.dart';

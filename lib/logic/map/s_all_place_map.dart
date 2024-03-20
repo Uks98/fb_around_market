@@ -16,7 +16,7 @@ import 'package:velocity_x/velocity_x.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'convert_location.dart';
 import 'location/s_user_location.dart';
-import 'map_add_marker_page.dart';
+import 's_map_add_marker_page.dart';
 import 'map_logic/map_logic.dart';
 import 'market_add_data/map_marker_data.dart';
 
@@ -85,7 +85,6 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                     final _latLng = NLatLng(position.latitude, position.longitude);
                     final _loadMarketLocation = NLatLng(double.parse(geoPointY.toString()), double.parse(geoPointX.toString()));
                     final distance = _latLng.distanceTo(_loadMarketLocation).round();
-
 
                     NMarker marker = NMarker(
                       icon: MarkerIcon.markerConvertWithMenu(markerData),

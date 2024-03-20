@@ -10,7 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import 'market_add_data/map_marker_data.dart';
-import 'market_add_widgets/market_location_intro_widget.dart';
+import 'market_add_widgets/w_market_location_intro_widget.dart';
 import 'market_add_widgets/w_market_add_textfield_widget.dart';
 
 final marketIndex = StateProvider<int>((ref) => 0);
@@ -44,7 +44,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
 
   double get gpsX => widget.gpsX;
 
-  int? distance; //거리 계산
+  double? distance; //거리 계산
 
   //매장 리스트
   final List<String> _marketType = ['길거리', '매장', '편의점'];
@@ -82,139 +82,142 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
   @override
   Widget build(BuildContext context) {
     final mediaWidth = MediaQuery.of(context).size.width;
-    final marker = NMarker(id: 'test', position: NLatLng(widget.gpsY, widget.gpsX));
-
+    final marker = NMarker(id: 'markerPin', position: NLatLng(widget.gpsY, widget.gpsX));
     final cameraPosition = NCameraPosition(
       target: NLatLng(gpsY, gpsX),
       zoom: 15,
       bearing: 45,
       tilt: 30,
     );
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("가게 제보"),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            HeightBox(biggestHeight),
-            Center(
-              child: SizedBox(
-                width: mediaWidth - 50,
-                height: 250,
-                child: NaverMap(
-                  options: NaverMapViewOptions(
-                    initialCameraPosition: cameraPosition,
+    return GestureDetector(
+      onTap: ()=> FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("가게 제보"),
+          centerTitle: true,
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              HeightBox(biggestHeight),
+              Center(
+                child: SizedBox(
+                  width: mediaWidth - 50,
+                  height: 250,
+                  child: NaverMap(
+                    options: NaverMapViewOptions(
+                      initialCameraPosition: cameraPosition,
+                    ),
+                    onMapReady: (controller1) {
+                      setState(() {
+                        controller1.addOverlay(marker);
+                      });
+                      //print(marker);
+                      final _latLng = NLatLng(widget.gpsY, widget.gpsX);
+                      final _loadMarketLocation = NLatLng(
+                        double.parse(
+                          widget.currentY.toString(),
+                        ),
+                        double.parse(
+                          widget.currentX.toString(),
+                        ),
+                      );
+                      distance = _latLng.distanceTo(_loadMarketLocation);
+                    },
                   ),
-                  onMapReady: (controller1) {
-                    setState(() {
-                      controller1.addOverlay(marker);
-                    });
-                    //print(marker);
-                    final _latLng = NLatLng(widget.gpsY, widget.gpsX);
-                    print(_latLng);
-                    final _loadMarketLocation = NLatLng(
-                        double.parse(widget.currentY.toString()),
-                        double.parse(widget.currentX.toString()));
-                    print(_latLng);
-                    distance = _latLng.distanceTo(_loadMarketLocation).round();
-                    print("이 거리는/*???*/${distance}");
-                  },
                 ),
               ),
-            ),
-            HeightBox(biggestHeight),
+              HeightBox(biggestHeight),
 
-            ///마켓 위치 위젯
-            MarketLocationIntroWidget(widget: widget, mediaWidth: mediaWidth),
-            HeightBox(biggestHeight),
+              ///마켓 위치 위젯
+              MarketLocationIntroWidget(widget: widget, mediaWidth: mediaWidth),
+              HeightBox(biggestHeight),
 
-            ///마켓 이름 텍스트 필드
-            MarketNameTextField(marketNameController: _marketNameController),
-            HeightBox(biggestHeight),
+              ///마켓 이름 텍스트 필드
+              MarketNameTextField(marketNameController: _marketNameController,),
+              HeightBox(biggestHeight),
 
-            ///가게 형태
-            marketTypeWidget(mediaWidth).pOnly(left: 25),
-            HeightBox(biggestHeight),
+              ///가게 형태
+              marketTypeWidget(mediaWidth).pOnly(left: 25),
+              HeightBox(biggestHeight),
 
-            ///결제 방식
-            paymentTypeWidget(mediaWidth).pOnly(left: 25),
-            HeightBox(biggestHeight),
+              ///결제 방식
+              paymentTypeWidget(mediaWidth).pOnly(left: 25),
+              HeightBox(biggestHeight),
 
-            ///출몰 시기
-            dayOfWeekWidget(mediaWidth).pOnly(left: 25),
+              ///출몰 시기
+              dayOfWeekWidget(mediaWidth).pOnly(left: 25),
 
-            ///카테고리
-            HeightBox(biggestHeight),
-            categoriesWidget(mediaWidth),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 100,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _marketNameController.text.isEmpty
-                              ? greyColor
-                              : baseColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
+              ///카테고리
+              HeightBox(biggestHeight),
+              categoriesWidget(mediaWidth),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 100,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _marketNameController.text.isEmpty
+                                ? greyColor
+                                : baseColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
                           ),
+                          onPressed: () async {
+                            final mapData = MarketData(
+                                markerId: DateTime.now()
+                                    .microsecondsSinceEpoch
+                                    .toString(),
+                                uid: userUid,
+                                locationName: widget.placeAddress,
+                                marketName: _marketNameController.text,
+                                marketType: market,
+                                kindOfCash: paymentSelected,
+                                gpsX: widget.gpsX,
+                                gpsY: widget.gpsY,
+                                categories: categoriesSelected,
+                                categoryImage: categoriesImage[0],
+                                dayOfWeek: dayOfWeekSelectList,
+                                distance: distance);
+                            await firestoreInit
+                                .collection("mapMarker")
+                                .add(mapData.toJson());
+                            context.goNamed("main");
+                          },
+                          child: "가게 등록하기"
+                              .text
+                              .size(20)
+                              .fontWeight(FontWeight.w700)
+                              .color(_marketNameController.text.isEmpty
+                                  ? greyFontColor
+                                  : Colors.white)
+                              .make(),
                         ),
-                        onPressed: () async {
-                          final mapData = MarketData(
-                            markerId: DateTime.now()
-                                .microsecondsSinceEpoch
-                                .toString(),
-                            uid: userUid,
-                            locationName: widget.placeAddress,
-                            marketName: _marketNameController.text,
-                            marketType: market,
-                            kindOfCash: paymentSelected,
-                            gpsX: widget.gpsX,
-                            gpsY: widget.gpsY,
-                            categories: categoriesSelected,
-                            categoryImage: categoriesImage[0],
-                            dayOfWeek: dayOfWeekSelectList,
-                            distance : distance
-                          );
-                          await firestoreInit
-                              .collection("mapMarker")
-                              .add(mapData.toJson());
-                          context.goNamed("main");
-                        },
-                        child: "가게 등록하기"
-                            .text
-                            .size(20)
-                            .fontWeight(FontWeight.w700)
-                            .color(_marketNameController.text.isEmpty
-                                ? greyFontColor
-                                : Colors.white)
-                            .make(),
                       ),
                     ),
-                  ),
-                  // widget.uid == uidHub.currentUser!.uid
-                  //     ? ElevatedButton(
-                  //         onPressed: () async {
-                  //           final db = FirebaseFirestore.instance;
-                  //           final col =
-                  //               db.collection("mapMarker").doc(widget.docId);
-                  //           col.update({
-                  //             "marketName": placeNameController.text,
-                  //           });
-                  //           Navigator.of(context).pop();
-                  //         },
-                  //         child: Text("수정하기"))
-                  //     : Container()
-                ],
-              ),
-            )
-          ],
+                    // widget.uid == uidHub.currentUser!.uid
+                    //     ? ElevatedButton(
+                    //         onPressed: () async {
+                    //           final db = FirebaseFirestore.instance;
+                    //           final col =
+                    //               db.collection("mapMarker").doc(widget.docId);
+                    //           col.update({
+                    //             "marketName": placeNameController.text,
+                    //           });
+                    //           Navigator.of(context).pop();
+                    //         },
+                    //         child: Text("수정하기"))
+                    //     : Container()
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

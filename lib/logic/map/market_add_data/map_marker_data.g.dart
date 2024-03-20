@@ -29,7 +29,7 @@ _$MarketDataImpl _$$MarketDataImplFromJson(Map<String, dynamic> json) =>
           const [],
       gpsX: (json['gpsX'] as num?)?.toDouble(),
       gpsY: (json['gpsY'] as num?)?.toDouble(),
-      distance: json['distance'] as int?,
+      distance: (json['distance'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$$MarketDataImplToJson(_$MarketDataImpl instance) =>
