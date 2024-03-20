@@ -34,10 +34,10 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
   double? convertGPSX;
   double? convertGPSY;
   final user = FirebaseAuth.instance;
-
+  String? documentId;
   Future<Position>? _locationFuture;
   Stream<QuerySnapshot> streamMapMarker() {
-    return firestoreInit.collection("mapMarker").orderBy("distance",descending: true).snapshots();
+    return firestoreInit.collection("mapMarker").orderBy("distance",descending: false).snapshots();
   }
 
 
@@ -81,7 +81,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                     final markerData = doc.data();
                     final geoPointX = (markerData)["gpsX"];
                     final geoPointY = (markerData)["gpsY"];
-
+                    documentId =  doc.id; //doc id
                     final _latLng = NLatLng(position.latitude, position.longitude);
                     final _loadMarketLocation = NLatLng(double.parse(geoPointY.toString()), double.parse(geoPointX.toString()));
                     final distance = _latLng.distanceTo(_loadMarketLocation).round();
@@ -160,9 +160,15 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                                     final distance = latLng.distanceTo(loadMarketLocation).round();
 
                                     return GestureDetector(
-                                      onTap: (){
-
-                                      },
+                                      //go router 변경해보기
+                                      onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MarketDetailPage(
+                                        id: items[itemIndex].markerId.toString(),
+                                        uid: items[itemIndex].uid.toString(),
+                                        docId: documentId ?? "123",
+                                        gpsX: items[itemIndex].gpsX!,
+                                        gpsY: items[itemIndex].gpsY!,
+                                        dayOfWeek: items[itemIndex].dayOfWeek,
+                                      ))),
                                       child: VxBox(child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -211,7 +217,7 @@ class _AllPlaceMapPageState extends State<AllPlaceMapPage> with FireBaseInitiali
                   }
                   return CustomLodeWidget.loadingWidget();
                 },
-                stream: FirebaseFirestore.instance.collection("mapMarker").snapshots(),
+                stream: FirebaseFirestore.instance.collection("mapMarker").orderBy("distance",descending: false).snapshots(),
               );
             }
         }

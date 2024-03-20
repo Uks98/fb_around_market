@@ -114,7 +114,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                         controller1.addOverlay(marker);
                       });
                       //print(marker);
-                      final _latLng = NLatLng(widget.gpsY, widget.gpsX);
+                      final _latLng = NLatLng(widget.gpsY, widget.gpsX); //현재 거리
                       final _loadMarketLocation = NLatLng(
                         double.parse(
                           widget.currentY.toString(),
@@ -187,7 +187,10 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                             await firestoreInit
                                 .collection("mapMarker")
                                 .add(mapData.toJson());
-                            context.goNamed("main");
+                            if(mounted){
+                              context.goNamed("main");
+                            }
+
                           },
                           child: "가게 등록하기"
                               .text
@@ -200,19 +203,7 @@ class _MarkerAddPageState extends State<MarkerAddPage> with FireBaseInitialize {
                         ),
                       ),
                     ),
-                    // widget.uid == uidHub.currentUser!.uid
-                    //     ? ElevatedButton(
-                    //         onPressed: () async {
-                    //           final db = FirebaseFirestore.instance;
-                    //           final col =
-                    //               db.collection("mapMarker").doc(widget.docId);
-                    //           col.update({
-                    //             "marketName": placeNameController.text,
-                    //           });
-                    //           Navigator.of(context).pop();
-                    //         },
-                    //         child: Text("수정하기"))
-                    //     : Container()
+
                   ],
                 ),
               )

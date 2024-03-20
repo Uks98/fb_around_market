@@ -5,6 +5,7 @@ import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/w_detail_widget/w_detail_widgets.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/w_detail_widget/w_review_start.dart';
+import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -136,7 +137,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                       .size(biggestFontSize)
                                       .make(),
                                   HeightBox(smallHeight),
-                                  "현재 위치에서 ${MapLogic.distanceConverter(widget.distance?.round() ?? 123131313)}".text.color(Colors.grey[600]).make()
+                                  "현재 위치에서 ${MapLogic.distanceConverter(widget.distance?.round() ?? 123131313)} 걸려요".text.color(Colors.grey[600]).make()
                                 ],
                               ),
                             ],
@@ -516,8 +517,31 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
 
                         )
                       ],
+                  
                     ),
                     const HeightBox(30),
+                    // widget.uid == userUid
+                    //     ? ElevatedButton(
+                    //         onPressed: () async {
+                    //           final db = FirebaseFirestore.instance;
+                    //           final col =
+                    //               db.collection("mapMarker").doc(widget.docId);
+                    //           col.update({
+                    //             "marketName": placeNameController.text,
+                    //           });
+                    //           Navigator.of(context).pop();
+                    //         },
+                    //         child: Text("수정하기"))
+                    //     : Container(),
+                    widget.uid == userUid
+                        ? ElevatedButton(
+                        onPressed: () async {
+                          final db = FirebaseFirestore.instance;
+                          final col = db.collection("mapMarker").doc(widget.docId).delete();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("삭제"))
+                        : Container()
                   ],
                 );
               }
