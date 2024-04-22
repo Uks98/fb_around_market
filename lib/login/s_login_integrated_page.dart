@@ -61,6 +61,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
           children: [
             const HeightBox(100),
             "스트릿 \n   푸드 파인더".text.fontWeight(FontWeight.w700).fontFamily("title").size(60).color(Colors.white).make(),
+            const HeightBox(30),
             Form(
               key: _formKey,
               child: Column(
@@ -90,7 +91,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                       },
                     ),
                   ),
-                  const HeightBox(30),
+                  const HeightBox(70),
                   Padding(
                     padding: const EdgeInsets.only(left: 40.0,right: 40.0),
                     child: TextFormField(
@@ -121,7 +122,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                 ],
               ),
             ),
-            const HeightBox(30),
+            const HeightBox(90),
             Padding(
               padding: const EdgeInsets.only(top: 16),
               child: Consumer(builder: (context, ref, child) {
@@ -166,6 +167,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
               }
             }
             ),
+            const HeightBox(30),
             TextButton(
               onPressed: () => context.goNamed("setUserProfile"),
               child: "계정이 없나요? 회원가입".text.color(Colors.white).make(),

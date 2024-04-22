@@ -137,7 +137,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                       .size(biggestFontSize)
                                       .make(),
                                   HeightBox(smallHeight),
-                                  "현재 위치에서 ${MapLogic.distanceConverter(widget.distance?.round() ?? 123131313)} 걸려요".text.color(Colors.grey[600]).make()
+                                  "현재 위치에서 ${MapLogic.distanceConverter(widget.distance?.round() ?? 1232)} 걸려요".text.color(Colors.grey[600]).make()
                                 ],
                               ),
                             ],
