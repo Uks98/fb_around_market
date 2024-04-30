@@ -1,23 +1,17 @@
 import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/color/color_box.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/w_detail_widget/w_detail_widgets.dart';
 import 'package:fb_around_market/logic/map/marker_detail_page/w_detail_widget/w_review_start.dart';
-import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:velocity_x/velocity_x.dart';
-
 import '../../../login/login_riv_state.dart';
 import '../../image_compress.dart';
 import '../map_logic/map_logic.dart';
@@ -30,8 +24,6 @@ final convertString = StateProvider<String?>((ref) => "");
 class MarketDetailPage extends ConsumerStatefulWidget{
   double gpsX;
   double gpsY;
-
-
   String id;
   String uid;
   String docId;
@@ -83,7 +75,6 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
 
   @override
   Widget build(BuildContext context) {
-    print(widget.dayOfWeek);
     final cameraPosition = NCameraPosition(
       target: NLatLng(widget.gpsY, widget.gpsX),
       zoom: 15,
@@ -105,8 +96,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                    .map(
                      (e) => MarketData.fromJson(e.data())
                      .copyWith(markerId: e.data()["markerId"]),
-               )
-                   .toList();
+               ).toList();
 
                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -534,14 +524,21 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                     //         child: Text("수정하기"))
                     //     : Container(),
                     widget.uid == userUid
-                        ? ElevatedButton(
-                        onPressed: () async {
-                          final db = FirebaseFirestore.instance;
-                          final col = db.collection("mapMarker").doc(widget.docId).delete();
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text("삭제"))
-                        : Container()
+                        ? Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                              onPressed: () async {
+                                final db = FirebaseFirestore.instance;
+                                final col = db.collection("mapMarker").doc(widget.docId).delete();
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("삭제")),
+                            ),
+                          ],
+                        )
+                        : Container(),
+                    HeightBox(normalHeight),
                   ],
                 );
               }
