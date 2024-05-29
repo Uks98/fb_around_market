@@ -1,27 +1,27 @@
 import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:velocity_x/velocity_x.dart';
 
+import '../login_riv_state.dart';
+
 class SignUpAddNamePage extends ConsumerWidget{
-  SignUpAddNamePage({super.key, this.userProfile});
+  const SignUpAddNamePage({super.key, this.userProfile});
   final String? userProfile;
   @override
   Widget build(BuildContext context,WidgetRef ref) {
-    print(userProfile);
-    TextEditingController _idController = TextEditingController();
-    final _formKey = GlobalKey<FormState>();
+    TextEditingController idController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              HeightBox(30),
-              "이메일을를 입력하세요"
+              const HeightBox(30),
+              "이메일을 입력하세요"
                   .text
                   .fontWeight(FontWeight.w700)
                   .size(bigFontSize + 10)
@@ -32,19 +32,10 @@ class SignUpAddNamePage extends ConsumerWidget{
                  crossAxisAlignment: CrossAxisAlignment.start,
                children: [
                 Form(
-                  key: _formKey,
+                  key: formKey,
                   child: TextFormField(
-                    validator: (value){
-                      if(value == null || value.isEmpty){
-                        return "이메일을 입력해주세요";
-                      }else if(value.length < 5){
-                        return "이메일을 더 길게 작성해주세요";
-                      }else if( !value.contains("@")){
-                        return "@를 포함한 유효한 이메일을 입력해주세요";
-                      }
-                      return null;
-                    },
-                    controller: _idController,
+                    validator: (value)=> ref.read(namedProvider.notifier).validateEmail(value ?? ""),
+                    controller: idController,
                    style: TextStyle(fontSize: bigFontSize + 5),
                    autofocus: true,
                    cursorColor: Colors.grey,
@@ -64,20 +55,19 @@ class SignUpAddNamePage extends ConsumerWidget{
                            ),
               const HeightBox(150),
               Center(child: ElevatedButton(onPressed: () async{
-                if(_formKey.currentState!.validate()){
-                  _formKey.currentState!.save();
+                if(formKey.currentState!.validate()){
+                  formKey.currentState!.save();
                 if(context.mounted){
                    String id = await ref.watch(userId);
-                   id = _idController.text;
+                   id = idController.text;
                   context.goNamed("password",
                       pathParameters: {
                     "userId" : id,
                     "userImage":userProfile ?? "",});
                 }
                 }
-
                 //context.go("/signUp/password");
-              }, child: "다음".text.make()))
+              }, child: "다음".text.make(),),),
             ],
           ),
         ),

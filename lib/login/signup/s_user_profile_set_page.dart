@@ -43,7 +43,7 @@ class _SignUpUserProfileSetPageState extends State<SignUpUserProfileSetPage> wit
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              HeightBox(30),
+              const HeightBox(30),
               "나만의 프로필을 \n설정하세요"
                   .text
                   .fontWeight(FontWeight.w700)
@@ -80,12 +80,11 @@ class _SignUpUserProfileSetPageState extends State<SignUpUserProfileSetPage> wit
                       ),
                     ],
                   )),
-              HeightBox(80),
+              const HeightBox(80),
               Center(child: ElevatedButton(onPressed: () async{
                 if(imageData != null){
                  await saveUserProfileImage();
                  context.goNamed("signUpName",pathParameters: {"userProfile" : profileImage!});
-
                 }else{
                   ToastNotification.warningToast("사진을 추가해주세요");
                 }

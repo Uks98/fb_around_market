@@ -18,11 +18,12 @@ class _MainPageState extends State<MainPage> {
   @override
   int _selectedItemPosition = 0;
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _selectedItemPosition,
-        children:  [
+        children:  const [
           AllPlaceMapPage(),
           UserMarkerSelectPage(),
            MyPage()
@@ -33,18 +34,9 @@ class _MainPageState extends State<MainPage> {
         snakeShape: SnakeShape.circle,
         padding: const EdgeInsets.all(5),
 
-        ///configuration for SnakeNavigationBar.color
         snakeViewColor: baseColor,
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.grey[500],
-
-        ///configuration for SnakeNavigationBar.gradient
-        //snakeViewGradient: selectedGradient,
-        //selectedItemGradient: snakeShape == SnakeShape.indicator ? selectedGradient : null,
-        //unselectedItemGradient: unselectedGradient,
-
-        // showUnselectedLabels: showUnselectedLabels,
-        // showSelectedLabels: showSelectedLabels,
 
         currentIndex: _selectedItemPosition,
         onTap: (index) => setState(() => _selectedItemPosition = index),

@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       GoRoute(path: '/login',name: "login", builder: (context, state) => LoginIntegratedPage()),
     GoRoute(
       name: "setUserProfile",
-        path: '/setUserProfile', builder: (context, state) => SignUpUserProfileSetPage(),
+        path: '/setUserProfile', builder: (context, state) => const SignUpUserProfileSetPage(),
       routes: [
         //네임드에는 파라미터 못받음 , named push 사용할 경우에도 path에 사용
         GoRoute(path: "signUpName/:userProfile",

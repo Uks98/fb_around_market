@@ -1,6 +1,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/firs_base_mixin/fire_base_queue.dart';
+import 'package:fb_around_market/login/login_riv_state.dart';
 import 'package:fb_around_market/size_valiable/utill_size.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class SignUpAddPassWordPage extends ConsumerWidget with FireBaseInitialize {
 
   @override
   Widget build(BuildContext context,WidgetRef ref) {
-    TextEditingController _passwordController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
     Future<bool> signUp(String emailAddress, String password) async {
       try {
             await fireBaseAuthInit.createUserWithEmailAndPassword(
@@ -25,7 +26,7 @@ class SignUpAddPassWordPage extends ConsumerWidget with FireBaseInitialize {
         await FirebaseFirestore.instance.collection("users").doc(userId).set({
           "profileImage": userImage,
           "userId": userId,
-          "password": _passwordController.text,
+          "password": passwordController.text,
           "user": userUid,
           "userUid": ""
         });
@@ -50,14 +51,14 @@ class SignUpAddPassWordPage extends ConsumerWidget with FireBaseInitialize {
       }
     }
 
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              HeightBox(30),
+              const HeightBox(30),
               "비밀번호를 입력하세요"
                   .text
                   .fontWeight(FontWeight.w700)
@@ -69,19 +70,15 @@ class SignUpAddPassWordPage extends ConsumerWidget with FireBaseInitialize {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Form(
-                    key: _formKey,
+                    key: formKey,
                     child: TextFormField(
                       obscureText: true,
                       keyboardType: TextInputType.visiblePassword,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "비밀번호를 입력해주세요";
-                        } else if (value.length < 5) {
-                          return "비밀번호를 더 길게 작성해주세요. ${6 - value.length}자리만 더 입력해주세요";
-                        }
-                        return null;
+                        final passwordValidation = ref.read(namedProvider.notifier);
+                        passwordValidation.validatePassword(value ?? "");
                       },
-                      controller: _passwordController,
+                      controller: passwordController,
                       style: TextStyle(fontSize: bigFontSize + 5),
                       autofocus: true,
                       cursorColor: Colors.grey,
@@ -104,24 +101,23 @@ class SignUpAddPassWordPage extends ConsumerWidget with FireBaseInitialize {
                       .pOnly(left: 15)
                 ],
               ),
-              HeightBox(150),
+              const HeightBox(150),
               Center(
                   child: ElevatedButton(
                       onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
+                        if (formKey.currentState!.validate()) {
+                          formKey.currentState!.save();
                           if (context.mounted) {
-                            final result = await signUp(
-                                userId.trim(), _passwordController.text.trim());
+                            final result = await signUp(userId.trim(), passwordController.text.trim());
                             if (result) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("회원가입 성공")),);
-                                  signUp(userId, _passwordController.text);
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("회원가입 성공")),);
+                                  signUp(userId, passwordController.text);
                                   context.goNamed("login");
                               }
                             }
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("회원가입에 실패했습니다.")),
+                              const SnackBar(content: Text("회원가입에 실패했습니다.")),
                             );
                           }
                         }
