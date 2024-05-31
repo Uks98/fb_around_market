@@ -1,16 +1,16 @@
-import 'package:fb_around_market/color/color_box.dart';
-import 'package:fb_around_market/logic/map/s_all_place_map.dart';
-import 'package:fb_around_market/login/signup/s_signup_seq2_password.dart';
-import 'package:fb_around_market/main_page/s_main_page.dart';
+import 'package:fb_around_market/presentation/view/login/s_login_integrated_page.dart';
+import 'package:fb_around_market/presentation/view/login/signup/s_sign_up_seq1_name.dart';
+import 'package:fb_around_market/presentation/view/login/signup/s_signup_seq2_password.dart';
+import 'package:fb_around_market/presentation/view/login/signup/s_user_profile_set_page.dart';
+import 'package:fb_around_market/presentation/view/main_page/s_main_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'login/s_login_integrated_page.dart';
-import 'login/signup/s_sign_up_seq1_name.dart';
-import 'login/signup/s_user_profile_set_page.dart';
+import 'common/color/color_box.dart';
+
 String? userCredentialWithGoogle;
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
