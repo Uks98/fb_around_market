@@ -392,60 +392,8 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
                                     itemBuilder: (context, index1) {
                                       if(snapshot.hasData){
                                         return GestureDetector(
-                                            onTap: () {},
                                             child: VxBox(
-                                              child: InkWell(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    SizedBox(
-                                                      width : 400,
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                        children: [
-                                                          Column(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment.start,
-                                                            children: [
-                                                              Row(
-                                                                children: [
-                                                                  StreamBuilder(
-                                                                      stream: streamProfileInfo(),
-                                                                      builder: (context, snapshot) {
-                                                                        if(snapshot.hasData){
-                                                                          final userDataAdapter = snapshot.data?.docs;
-                                                                          final userData = userDataAdapter?.map((e) => e.data()["profileImage"]);
-                                                                          return Row(
-                                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                                            children: [
-                                                                              CircleAvatar(
-                                                                                radius: 20,
-                                                                                backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
-                                                                              ),
-                                                                              WidthBox(normalWidth),
-                                                                            ],
-                                                                          ).pOnly(left: detailLeftRightPadding);
-                                                                        }
-                                                                        return Container();
-                                                                      }
-                                                                  ),
-                                                                  "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),
-                                                                ],),
-                                                              HeightBox(normalHeight),
-                                                              ReviewLogic.returnStar(item[index1]["score"]).pOnly(left: 20),
-                                                              HeightBox(bigHeight),
-
-                                                              "${item[index1]["review"]}".text.size(bigFontSize).fontWeight(FontWeight.w700).make().pOnly(left: 20),
-                                                              HeightBox(bigHeight),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ).p(normalWidth),
-                                              ),
+                                              child: reviewWidget(item, index1),
                                             ).color(reviewPoPUp).withRounded(value: normalWidth).make()
                                         );
                                       }
@@ -508,6 +456,61 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage> wit
         ),
       ),
     );
+  }
+
+  InkWell reviewWidget(List<QueryDocumentSnapshot<Map<String, dynamic>>> item, int index1) {
+    return InkWell(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(
+                                                    width : 400,
+                                                    child: Row(
+                                                      crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                      children: [
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                StreamBuilder(
+                                                                    stream: streamProfileInfo(),
+                                                                    builder: (context, snapshot) {
+                                                                      if(snapshot.hasData){
+                                                                        final userDataAdapter = snapshot.data?.docs;
+                                                                        final userData = userDataAdapter?.map((e) => e.data()["profileImage"]);
+                                                                        return Row(
+                                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            CircleAvatar(
+                                                                              radius: 20,
+                                                                              backgroundImage:NetworkImage(userData.toString().replaceAll("(", "").replaceAll(")","") ?? ""),
+                                                                            ),
+                                                                            WidthBox(normalWidth),
+                                                                          ],
+                                                                        ).pOnly(left: detailLeftRightPadding);
+                                                                      }
+                                                                      return Container();
+                                                                    }
+                                                                ),
+                                                                "${item[index1]["email"]}".text.size(normalFontSize).fontWeight(FontWeight.bold).make(),
+                                                              ],),
+                                                            HeightBox(normalHeight),
+                                                            ReviewLogic.returnStar(item[index1]["score"]).pOnly(left: 20),
+                                                            HeightBox(bigHeight),
+
+                                                            "${item[index1]["review"]}".text.size(bigFontSize).fontWeight(FontWeight.w700).make().pOnly(left: 20),
+                                                            HeightBox(bigHeight),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ).p(normalWidth),
+                                            );
   }
 
 
