@@ -137,8 +137,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                                 pwdTextController.text.trim());
                             if (result == null) {
                               if(context.mounted){
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(const SnackBar(content: Text("로그인 실패"),),);
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("로그인 실패"),),);
                               }
                               return;
                             }

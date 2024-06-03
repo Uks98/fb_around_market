@@ -18,7 +18,6 @@ class DetailIconText extends StatelessWidget {
      required this.callBack,
      this.colors,
   }
-
   );
 
   @override

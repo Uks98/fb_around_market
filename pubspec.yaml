@@ -70,6 +70,9 @@ dependencies:
   carousel_slider: ^4.2.1
   #loading
   loading_animation_widget: ^1.2.1
+  #test
+  test:
+  mockito: ^5.4.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -31,7 +31,6 @@ class LoginValidation extends StateNotifier<bool> {
     }
     return null;
   }
-
 }
 
 final namedProvider = StateNotifierProvider<LoginValidation, bool>((ref) => LoginValidation());
