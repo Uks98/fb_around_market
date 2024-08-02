@@ -1,3 +1,4 @@
+import 'package:fb_around_market/presentation/view/chat/s_chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
@@ -23,10 +24,11 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: IndexedStack(
         index: _selectedItemPosition,
-        children:  const [
-          AllPlaceMapPage(),
-          UserMarkerSelectPage(),
-           MyPage()
+        children:   [
+          const AllPlaceMapPage(),
+          const UserMarkerSelectPage(),
+           ChatPage(),
+          const MyPage()
         ],
       ),
       bottomNavigationBar: SnakeNavigationBar.color(
@@ -43,8 +45,8 @@ class _MainPageState extends State<MainPage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Ionicons.map_outline,size: 25,)),
           BottomNavigationBarItem(icon: Icon(Ionicons.pencil_outline,size: 25,)),
+          BottomNavigationBarItem(icon: Icon(Ionicons.chatbox_outline), label: 'home'),
           BottomNavigationBarItem(icon: Icon(Ionicons.person_outline,size: 25,)),
-          //BottomNavigationBarItem(icon: Icon(CustomIcons.home), label: 'home'),
         ],
       ),
     );
