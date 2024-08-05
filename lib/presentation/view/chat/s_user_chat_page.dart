@@ -1,17 +1,18 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/common/color/color_box.dart';
 import 'package:fb_around_market/common/size_valiable/utill_size.dart';
 import 'package:fb_around_market/presentation/service/char_data_service/chat_get_send_service.dart';
+import 'package:fb_around_market/presentation/view/chat/w_chat_room_tile.dart';
 import 'package:fb_around_market/ropository/firs_base_mixin/fire_base_queue.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 
 class UserChatPage extends StatefulWidget  {
-  UserChatPage(
-      {super.key, required this.receiverEmail, required this.receiverID, required this.receiverUserImage});
+  const UserChatPage({super.key, required this.receiverEmail, required this.receiverID, required this.receiverUserImage, required String docId});
 
   final String receiverEmail;
   final String receiverID; //uid
@@ -22,7 +23,9 @@ class UserChatPage extends StatefulWidget  {
 }
 
 class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
+
   final ChatService _chatService = ChatService();
+  //Timer? _timer;
   String chatRoomIds(){
     String senderId = fireBaseAuthInit.currentUser!.uid;
     final ids = [widget.receiverID,senderId];
@@ -41,15 +44,29 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
       //메세지 클리어
       _messageController.clear();
     }
-    if(senderId != userUid){
-    _chatService.readAllMessages(chatRoomIds());
+  }
+  void readMessage()async{
+    final String myUid = fireBaseAuthInit.currentUser!.uid;
+    if(myUid != widget.receiverID){
+      _chatService.readAllMessages(chatRoomIds());
     }
   }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _chatService.readAllMessages(chatRoomIds());
+    readMessage();
+    // _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    //   if(fireBaseAuthInit.currentUser!.uid != widget.receiverID){
+    //     _chatService.readAllMessages(chatRoomIds());
+    //   }
+    // });
+  }
+  @override
+  void dispose() {
+    // 위젯이 dispose될 때 타이머 취소
+   // _timer?.cancel();
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {
@@ -160,6 +177,23 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
           _buildUserInput()
         ],
       ).p(bigHeight),
+    );
+  }
+  StreamBuilder<QuerySnapshot<Map<String, dynamic>>> currentUserLength(
+      ChatService _chatService, String idd) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: _chatService.getLastMessageStream(idd),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return "메세지가 없습니다.".text.size(smallFontSize-3).color(Colors.grey[700]).make();
+        }
+        final doc = snapshot.data!.docs.first;
+        docId = doc.id;
+        return doc["userCount"].toString().text.size(smallFontSize-3).color(Colors.grey[700]).make();
+      },
     );
   }
 }

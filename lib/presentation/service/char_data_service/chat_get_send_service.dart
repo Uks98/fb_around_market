@@ -10,6 +10,7 @@ class ChatService with FireBaseInitialize{
     final chatUserEmail = fireBaseAuthInit.currentUser!.email;
     final Timestamp timestamp = Timestamp.now();
     bool isRead = false;
+    int count = 0;
     Message newMessage = Message(
       senderId: chatUserUid ?? "",
       senderEmail: chatUserEmail ?? "a",
@@ -30,12 +31,14 @@ class ChatService with FireBaseInitialize{
   }
 
   Stream<QuerySnapshot> getMessage(String ids) {
+
     return firestoreInit
         .collection("chat_rooms")
         .doc(ids)
         .collection("message")
         .orderBy("timeStamp", descending: false)
         .snapshots();
+
   }
   Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessageStream(String ids) {
     return FirebaseFirestore.instance
@@ -57,7 +60,7 @@ class ChatService with FireBaseInitialize{
 
       // 모든 문서에 대해 isRead 필드를 true로 업데이트
       for (var doc in messages.docs) {
-        await doc.reference.update({'isRead': true});
+        await doc.reference.update({'isRead': true,});
       }
       print("All messages updated successfully");
     } catch (e) {

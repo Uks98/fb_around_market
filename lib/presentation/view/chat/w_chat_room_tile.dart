@@ -8,7 +8,7 @@ import 'package:velocity_x/velocity_x.dart';
 
 import '../../service/char_data_service/chat_get_send_service.dart';
 
-
+String? docId;
 class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
   ChatRoomTile(
       {super.key, required this.userDataImage, required this.userName, required this.userID});
@@ -20,6 +20,7 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
   @override
   Widget build(BuildContext context) {
     String senderId = fireBaseAuthInit.currentUser!.uid;
+
     final ids = [userID, senderId];
     ids.sort();
     ids.join("_");
@@ -35,6 +36,7 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
                     receiverEmail: userName ?? "", //email
                     receiverID: userID ?? "", //uid
                     receiverUserImage: userDataImage ?? "",
+                    docId : docId ?? ""
                   ),
             ),
           ),
@@ -77,8 +79,8 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return "메세지가 없습니다.".text.size(smallFontSize-3).color(Colors.grey[700]).make();
         }
-
         final doc = snapshot.data!.docs.first;
+        docId = doc.id;
         return doc["message"].toString().text.size(smallFontSize-3).color(Colors.grey[700]).make();
       },
     );

@@ -23,7 +23,7 @@ class Message {
       "receiverId" :receiverId ,
       "message" :message,
       "timeStamp" :timeStamp,
-      "isRead" : isRead
+      "isRead" : isRead,
     };
   }
 }
