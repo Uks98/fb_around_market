@@ -66,6 +66,7 @@ dependencies:
   #ui
   flutter_snake_navigationbar: ^0.6.1
   ionicons: ^0.2.0
+  flutter_chat_bubble: ^2.0.2
   #slider
   carousel_slider: ^4.2.1
   #loading

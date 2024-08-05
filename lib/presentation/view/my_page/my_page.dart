@@ -1,9 +1,7 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/presentation/view/my_page/widgets/w_achivement_widgets.dart';
 import 'package:fb_around_market/presentation/view/my_page/widgets/w_favorite_widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -58,7 +56,6 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize {
           Expanded(
             child: ListView.builder(
               itemBuilder: (context, index) {
-                //bool isChecked = _userInfo.funUserCheck(UserInfoData.user!.uid);
                 if (index == 0) {
                   return StreamBuilder(
                       stream: myPageStreamLogic.streamProfileInfo(),

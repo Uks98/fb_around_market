@@ -85,7 +85,6 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage>
   final List<String> weekList = ["월", "화", "수", "목", "금", "토", "일"];
   Uint8List? _imageData;
   int reviewScore = 0;
-  final ComplexImageLogicBox _imageCompress = ComplexImageLogicBox();
   TextEditingController reviewTec = TextEditingController();
 
   ///마켓과 사용자간 상호작용하는 메서드가 저장되어있는 인스턴스
@@ -95,6 +94,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage>
   bool isFavorite = false;
 
   Future<void> saveUserProfileImage() async {
+    final ComplexImageLogicBox _imageCompress = ComplexImageLogicBox();
     final storage = FirebaseStorage.instance;
     final storageRef = storage.ref("marketImage/").child(
         "${DateTime.now().microsecondsSinceEpoch}_${image?.name ?? "??"}.jpg");
@@ -130,12 +130,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage>
                 if (snapshot.hasData) {
                   final marketData = snapshot.data?.docs[0];
                   final items = snapshot.data?.docs
-                      .map(
-                        (e) => MarketData.fromJson(e.data())
-                            .copyWith(markerId: e.data()["markerId"]),
-                      )
-                      .toList();
-
+                      .map((e) => MarketData.fromJson(e.data(),).copyWith(markerId: e.data()["markerId"],),).toList();
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -469,53 +464,60 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage>
                                                                 .pop(),
                                                         child: const Text("취소"),
                                                       ),
-                                                      Consumer(builder:
-                                                          (context, ref,
-                                                              child) {
-                                                        final user = ref.watch(
-                                                            userCredentialProvider);
-                                                        final time = DateTime(
-                                                            DateTime.now().year,
-                                                            DateTime.now()
-                                                                .month,
-                                                            DateTime.now().day);
-                                                        return TextButton(
-                                                          onPressed: () async {
-                                                            await FirebaseFirestore
-                                                                .instance
-                                                                .collection(
-                                                                    "mapMarker")
-                                                                .doc(widget
-                                                                    .docId)
-                                                                .collection(
-                                                                    "reviews")
-                                                                .add({
-                                                              "uid": user?.user
-                                                                      ?.uid ??
-                                                                  "",
-                                                              "email": user
-                                                                      ?.user
-                                                                      ?.email ??
-                                                                  "",
-                                                              "review":
-                                                                  reviewTec.text
-                                                                      .trim(),
-                                                              "timestamp":
-                                                                  Timestamp
-                                                                      .now(),
-                                                              "writeTime": time,
-                                                              "score":
-                                                                  reviewScore +
-                                                                      1
-                                                            });
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                          child:
-                                                              const Text("등록"),
-                                                        );
-                                                      })
+                                                      Consumer(
+                                                        builder: (context, ref,
+                                                            child) {
+                                                          final user = ref.watch(
+                                                              userCredentialProvider);
+                                                          final time = DateTime(
+                                                              DateTime.now()
+                                                                  .year,
+                                                              DateTime.now()
+                                                                  .month,
+                                                              DateTime.now()
+                                                                  .day);
+                                                          return TextButton(
+                                                            onPressed:
+                                                                () async {
+                                                              await FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      "mapMarker")
+                                                                  .doc(widget
+                                                                      .docId)
+                                                                  .collection(
+                                                                      "reviews")
+                                                                  .add({
+                                                                "uid": user
+                                                                        ?.user
+                                                                        ?.uid ??
+                                                                    "",
+                                                                "email": user
+                                                                        ?.user
+                                                                        ?.email ??
+                                                                    "",
+                                                                "review":
+                                                                    reviewTec
+                                                                        .text
+                                                                        .trim(),
+                                                                "timestamp":
+                                                                    Timestamp
+                                                                        .now(),
+                                                                "writeTime":
+                                                                    time,
+                                                                "score":
+                                                                    reviewScore +
+                                                                        1
+                                                              });
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            child: const Text(
+                                                                "등록"),
+                                                          );
+                                                        },
+                                                      )
                                                     ],
                                                   );
                                                 },
