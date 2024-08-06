@@ -80,8 +80,15 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
           return "메세지가 없습니다.".text.size(smallFontSize-3).color(Colors.grey[700]).make();
         }
         final doc = snapshot.data!.docs.first;
-        docId = doc.id;
-        return doc["message"].toString().text.size(smallFontSize-3).color(Colors.grey[700]).make();
+        final time = _chatService.exchangeTime(doc["timeStamp"].toDate());
+        print("user image${doc["userImage"]}");
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            doc["userImage"] == "" ?doc["message"].toString().text.size(smallFontSize-3).color(Colors.grey[500]).make() : "사진을 보냈습니다.".toString().text.size(smallFontSize-3).color(Colors.grey[500]).make(),
+            time.toString().text.size(1).color(Colors.grey[500]).make(),
+          ],
+        );
       },
     );
   }

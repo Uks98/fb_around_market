@@ -90,9 +90,9 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage>
   ///마켓과 사용자간 상호작용하는 메서드가 저장되어있는 인스턴스
   MarketInteractionClass marketInteractionClass = MarketInteractionClass();
   String? profileImage;
-  XFile? image;
   bool isFavorite = false;
 
+    XFile? image;
   Future<void> saveUserProfileImage() async {
     final ComplexImageLogicBox _imageCompress = ComplexImageLogicBox();
     final storage = FirebaseStorage.instance;
@@ -144,7 +144,6 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage>
                                   ?.map((e) => e.data()["profileImage"]);
                               return Row(
                                 children: [
-                                  //"${userData}".text.size(30).make(),
                                   CircleAvatar(
                                     radius: 40,
                                     backgroundImage: NetworkImage(userData

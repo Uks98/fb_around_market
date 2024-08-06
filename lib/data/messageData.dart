@@ -6,6 +6,7 @@ class Message {
   final String? receiverId;
   final String? message;
   final Timestamp timeStamp;
+  final String? userChatImage;
   bool isRead = false;
   Message({
     required this.senderId,
@@ -14,6 +15,7 @@ class Message {
     required this.message,
     required this.timeStamp,
     required this.isRead,
+    required this.userChatImage
 });
 
   Map<String,dynamic> toMap(){
@@ -24,6 +26,7 @@ class Message {
       "message" :message,
       "timeStamp" :timeStamp,
       "isRead" : isRead,
+      "userImage": userChatImage
     };
   }
 }
