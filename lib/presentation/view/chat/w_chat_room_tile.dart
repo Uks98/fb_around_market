@@ -3,7 +3,6 @@ import 'package:fb_around_market/common/size_valiable/utill_size.dart';
 import 'package:fb_around_market/presentation/view/chat/s_user_chat_page.dart';
 import 'package:fb_around_market/ropository/firs_base_mixin/fire_base_queue.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import '../../service/char_data_service/chat_get_send_service.dart';
@@ -11,10 +10,10 @@ import '../../service/char_data_service/chat_get_send_service.dart';
 String? docId;
 class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
   ChatRoomTile(
-      {super.key, required this.userDataImage, required this.userName, required this.userID});
+      {super.key, required this.userDataImage, required this.senderEmail, required this.userID});
 
   final String? userDataImage;
-  final String? userName;
+  final String? senderEmail;
   final String? userID;
 
   @override
@@ -33,7 +32,7 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
             MaterialPageRoute(
               builder: (context) =>
                   UserChatPage(
-                    receiverEmail: userName ?? "", //email
+                    senderEmail: senderEmail ?? "", //email
                     receiverID: userID ?? "", //uid
                     receiverUserImage: userDataImage ?? "",
                     docId : docId ?? ""
@@ -56,7 +55,7 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              userName!.text.fontWeight(FontWeight.bold).size(smallFontSize).make(),
+              senderEmail!.text.fontWeight(FontWeight.bold).size(smallFontSize).make(),
               lastMessageWidget(_chatService, idd),
             ],
           ),

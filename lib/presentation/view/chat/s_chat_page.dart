@@ -32,7 +32,7 @@ class ChatPage extends StatelessWidget with FireBaseInitialize {
                       .map(
                         (doc) => ChatRoomTile(
                           userDataImage: doc["profileImage"],
-                          userName: doc["userId"], //email
+                          senderEmail: doc["userId"], //email
                           userID: doc["userUid"] ?? "", //uid
                         ),
                       )

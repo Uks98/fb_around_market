@@ -226,11 +226,11 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize {
                               bool isEndToast = false;
                             final userWriteList = snapshot.data?.docs ?? [];
                             if (int.parse(userWriteList.length.toString()) == 2 && !isEndToast) {
-                              Future.delayed(Duration.zero, () {
-                                ToastNotification.missionWriteLen(context,
-                                    '축하합니다. "첫만남은 어려워" 칭호를 획득하셨습니다.');
-                                isEndToast = true;
-                              });
+                              // Future.delayed(Duration.zero, () {
+                              //   ToastNotification.missionWriteLen(context,
+                              //       '축하합니다. "첫만남은 어려워" 칭호를 획득하셨습니다.');
+                              //   isEndToast = true;
+                              // });
                             }
                             if (snapshot.hasData) {
                                 if (snapshot.hasData) {

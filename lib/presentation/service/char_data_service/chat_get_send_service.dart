@@ -1,15 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fb_around_market/data/chat_favorite_data.dart';
+import 'package:fb_around_market/domain/model/market_add_data/map_marker_data.dart';
 import 'package:fb_around_market/ropository/firs_base_mixin/fire_base_queue.dart';
 import 'package:intl/intl.dart';
 
 import '../../../data/messageData.dart';
 
 class ChatService with FireBaseInitialize{
-  Future<void> sendMessage(String receiverId, message, String? userChatImage) async {
+  Future<void> sendMessage(String receiverId, message, String? userChatImage,Map<String,dynamic>? favorite) async {
     final chatUserUid = fireBaseAuthInit.currentUser!.uid;
     final chatUserEmail = fireBaseAuthInit.currentUser!.email;
     final Timestamp timestamp = Timestamp.now();
-    bool isRead = false;
+    bool isRead = false; //답장을 받는 사람이 답장을 확인했는지 유무 boolean
     Message newMessage = Message(
       senderId: chatUserUid ?? "",
       senderEmail: chatUserEmail ?? "a",
@@ -17,7 +19,8 @@ class ChatService with FireBaseInitialize{
       message: message ?? "a",
       timeStamp: timestamp,
       isRead: isRead,
-      userChatImage: userChatImage ?? ""
+      userChatImage: userChatImage ?? "",
+      favorite: favorite
     );
     List<String> ids = [chatUserUid, receiverId];
     ids.sort();
@@ -31,7 +34,6 @@ class ChatService with FireBaseInitialize{
   }
 
   Stream<QuerySnapshot> getMessage(String ids) {
-
     return firestoreInit
         .collection("chat_rooms")
         .doc(ids)
@@ -49,6 +51,14 @@ class ChatService with FireBaseInitialize{
         .limit(1)
         .snapshots();
   }
+
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getLikeUserList(String senderEmail) {
+    final favorites = firestoreInit.collection("users").doc("aa@naver.com")
+        .collection("favorite").snapshots();
+    return favorites;
+  }
+
   void readAllMessages(String chatRoomId, String receiverId) async {
     try {
       // 메시지 컬렉션에서 모든 문서를 가져오기
@@ -68,6 +78,7 @@ class ChatService with FireBaseInitialize{
         }
       }
     } catch (e) {
+      print(e);
     }
   }
 

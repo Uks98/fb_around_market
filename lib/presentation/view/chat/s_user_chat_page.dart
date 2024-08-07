@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/common/color/color_box.dart';
 import 'package:fb_around_market/common/size_valiable/utill_size.dart';
+import 'package:fb_around_market/data/chat_favorite_data.dart';
+import 'package:fb_around_market/domain/model/market_add_data/map_marker_data.dart';
 import 'package:fb_around_market/presentation/service/char_data_service/chat_get_send_service.dart';
 import 'package:fb_around_market/presentation/view/chat/s_image_detail.dart';
 import 'package:fb_around_market/presentation/view/chat/w_chat_room_tile.dart';
@@ -15,16 +17,17 @@ import 'package:ionicons/ionicons.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import '../../../domain/logic/image_compress.dart';
+import '../../widget/w_dialog_list_widget.dart';
 
 class UserChatPage extends StatefulWidget {
   const UserChatPage(
       {super.key,
-      required this.receiverEmail,
+      required this.senderEmail,
       required this.receiverID,
       required this.receiverUserImage,
       required String docId});
 
-  final String receiverEmail;
+  final String senderEmail;
   final String receiverID; //uid
   final String? receiverUserImage;
 
@@ -41,6 +44,12 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
   String? userChatImage; //유저가 보낸 채팅창에 이미지
 
   XFile? image;
+  final favorite = Favorite(
+    marketName: "1",
+    kindOfCash: "1",
+    categories: "1",
+    imagePath: "1",
+  );
 
   //이미지를 firestorage에 저장하는 함수
   Future<void> saveUserChatImage() async {
@@ -51,9 +60,9 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
     final compressImage = await _imageCompress.imageCompressList(imageData!);
     await storageRef.putData(compressImage);
     userChatImage = await storageRef.getDownloadURL();
-    await _chatService.sendMessage(
-        widget.receiverID, _messageController.text.toString(), userChatImage);
+    await _chatService.sendMessage(widget.receiverID, _messageController.text.toString(), userChatImage, favorite.toJson());
   }
+
   ///이미지를 갤러리나 카메라에서 가져오는 함수
   Future<void> pickImage(ImageSource source) async {
     ImagePicker imagePicker = ImagePicker();
@@ -64,6 +73,7 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
       await saveUserChatImage();
     }
   }
+
   ///채팅방 유니크 아이디입니다.
   String chatRoomIds() {
     String senderId = fireBaseAuthInit.currentUser!.uid;
@@ -75,11 +85,25 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
   }
 
   final TextEditingController _messageController = TextEditingController();
+  Future<void> sendUserFavorite() async {
+    if (_messageController.text.isNotEmpty) {
+      // 메세지 보내기
+      await _chatService.sendMessage(widget.receiverID, _messageController.text.toString(), "", favorite.toJson());
+      // 메세지 클리어_messageController.clear();
+    }
+    readMessage();
+    scrollDown();
+  }
   void sendMessage() async {
     if (_messageController.text.isNotEmpty) {
       //메세지 보내기
       await _chatService.sendMessage(
-          widget.receiverID, _messageController.text.toString(), "");
+          widget.receiverID, _messageController.text.toString(), "", Favorite(
+        marketName: "1",
+        kindOfCash: "1",
+        categories: "1",
+        imagePath: "1",
+      ).toJson());
       //메세지 클리어
       _messageController.clear();
     }
@@ -87,7 +111,8 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
     scrollDown();
   }
 
-  void readMessage() async => _chatService.readAllMessages(chatRoomIds(), widget.receiverID);
+  void readMessage() async =>
+      _chatService.readAllMessages(chatRoomIds(), widget.receiverID);
   final ScrollController _scrollController = ScrollController();
 
   void scrollDown() =>
@@ -105,16 +130,18 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
     });
     Future.delayed(const Duration(milliseconds: 500), () => scrollDown());
   }
+
   ///이미지 상세페이지로 가는 함수
-void detailImage(String image){
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => ImageDetail(
-        image: image,
+  void detailImage(String image) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ImageDetail(
+          image: image,
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
   @override
   void dispose() {
     myFocusNode.dispose();
@@ -124,8 +151,15 @@ void detailImage(String image){
 
   @override
   Widget build(BuildContext context) {
-    Widget _chatBubble(String message, Alignment alignment, bool isCurrentUser,
-        DateTime time, bool isReadChat, String userImage,String senderId,String receiverId) {
+    Widget _chatBubble(
+        String message,
+        Alignment alignment,
+        bool isCurrentUser,
+        DateTime time,
+        bool isReadChat,
+        String userImage,
+        String senderId,
+        String receiverId) {
       String nullUserImage =
           "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=";
       String exchangeTime = _chatService.exchangeTime(time);
@@ -136,8 +170,8 @@ void detailImage(String image){
         children: [
           notCurrentUser
               ? GestureDetector(
-            onTap: ()=>detailImage(widget.receiverUserImage ?? ""),
-                child: CircleAvatar(
+                  onTap: () => detailImage(widget.receiverUserImage ?? ""),
+                  child: CircleAvatar(
                     radius: 25,
                     backgroundImage: NetworkImage(widget.receiverUserImage
                             ?.toString()
@@ -145,12 +179,12 @@ void detailImage(String image){
                             .replaceAll(")", "") ??
                         nullUserImage),
                   ),
-              )
+                )
               : Container(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-             isReadChat == false
+              isReadChat == false
                   ? "안읽음".text.color(baseColor).size(smallFontSize).make()
                   : "".text.color(baseColor).size(smallFontSize).make(),
               !notCurrentUser
@@ -199,8 +233,15 @@ void detailImage(String image){
           isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
       return Container(
         alignment: alignment,
-        child: _chatBubble(data["message"], alignment, isCurrentUser,
-            messageTime, data["isRead"], data["userImage"],data["senderId"],data["receiverId"]),
+        child: _chatBubble(
+            data["message"],
+            alignment,
+            isCurrentUser,
+            messageTime,
+            data["isRead"],
+            data["userImage"],
+            data["senderId"],
+            data["receiverId"]),
       );
     }
 
@@ -231,7 +272,6 @@ void detailImage(String image){
     }
 
     Widget _buildUserInput() {
-
       return Row(
         children: [
           Expanded(
@@ -246,23 +286,54 @@ void detailImage(String image){
             ),
           ),
           IconButton(
-            icon: const Icon(Ionicons.image_outline,size: 25,),
-            onPressed: () =>pickImage(ImageSource.gallery)
+              icon: const Icon(
+                Ionicons.camera_outline,
+                size: 25,
+              ),
+              onPressed: () => sendMessage()),
+          IconButton(
+            icon: const Icon(
+              Ionicons.heart_circle_outline,
+              size: 25,
+            ),
+            onPressed: () => showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CustomAlertDialog(
+                  receiverId: widget.receiverID,
+                  senderEmail: widget.senderEmail,
+                  callback: sendUserFavorite,
+                );
+              },
+            ),
           ),
           IconButton(
-              icon: const Icon(Ionicons.camera_outline,size: 25,),
-              onPressed: () =>pickImage(ImageSource.camera)
-          ),
+              icon: const Icon(
+                Ionicons.image_outline,
+                size: 25,
+              ),
+              onPressed: () => pickImage(ImageSource.gallery)),
           IconButton(
-              onPressed: () => sendMessage(),
-              icon: const Icon(Ionicons.send_sharp,size: 25,color: baseColor,),),
+              icon: const Icon(
+                Ionicons.camera_outline,
+                size: 25,
+              ),
+              onPressed: () => pickImage(ImageSource.camera)),
+          IconButton(
+            onPressed: () => sendMessage(),
+            icon: const Icon(
+              Ionicons.send_sharp,
+              size: 25,
+              color: baseColor,
+            ),
+          ),
         ],
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: widget.receiverEmail.text.make(),
+        title: widget.senderEmail.text.make(),
         centerTitle: true,
         elevation: 2,
         backgroundColor: baseColor.withOpacity(0.3),
@@ -270,33 +341,6 @@ void detailImage(String image){
       body: Column(
         children: [Expanded(child: _buildMessageList()), _buildUserInput()],
       ).p(bigHeight),
-    );
-  }
-
-  StreamBuilder<QuerySnapshot<Map<String, dynamic>>> currentUserLength(
-      ChatService _chatService, String idd) {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: _chatService.getLastMessageStream(idd),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return "메세지가 없습니다."
-              .text
-              .size(smallFontSize - 3)
-              .color(Colors.grey[700])
-              .make();
-        }
-        final doc = snapshot.data!.docs.first;
-        docId = doc.id;
-        return doc["userCount"]
-            .toString()
-            .text
-            .size(smallFontSize - 3)
-            .color(Colors.grey[700])
-            .make();
-      },
     );
   }
 }
