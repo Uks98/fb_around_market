@@ -81,7 +81,6 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
         }
         final doc = snapshot.data!.docs.first;
         final time = _chatService.exchangeTime(doc["timeStamp"].toDate());
-        print("user image${doc["userImage"]}");
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

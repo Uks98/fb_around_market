@@ -1,3 +1,4 @@
+import 'package:fb_around_market/presentation/service/push_message_service.dart';
 import 'package:fb_around_market/presentation/view/login/s_login_integrated_page.dart';
 import 'package:fb_around_market/presentation/view/login/signup/s_sign_up_seq1_name.dart';
 import 'package:fb_around_market/presentation/view/login/signup/s_signup_seq2_password.dart';
@@ -23,8 +24,9 @@ void main() async{
       authDomain: 'fbaroundmarket.firebaseapp.com',
       storageBucket: 'fbaroundmarket.appspot.com',
       measurementId: 'G-FKZJQSFTKC',
-    )
+    ),
   );
+  await FirebaseApi().initNotifications();
   await NaverMapSdk.instance.initialize(clientId: 'fyu8vwn1ij');
   runApp(ProviderScope(child: MyApp()));
 }

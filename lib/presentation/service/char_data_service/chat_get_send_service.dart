@@ -49,7 +49,7 @@ class ChatService with FireBaseInitialize{
         .limit(1)
         .snapshots();
   }
-  void readAllMessages(String chatRoomId,String receiverId) async {
+  void readAllMessages(String chatRoomId, String receiverId) async {
     try {
       // 메시지 컬렉션에서 모든 문서를 가져오기
       var messages = await firestoreInit
@@ -57,24 +57,20 @@ class ChatService with FireBaseInitialize{
           .doc(chatRoomId)
           .collection("message")
           .get();
+
       final String myUid = fireBaseAuthInit.currentUser!.uid;
-      // 모든 문서에 대해 isRead 필드를 true로 업데이트
-      // 현재 id와 보내는 사람의 메세지가 같은 경우에만 update를 진행합니다.
+
+      // 모든 문서에 대해 isRead 필드를 업데이트
       for (var doc in messages.docs) {
-        if(myUid != receiverId){
-        await doc.reference.update({'isRead': false,});
-        print("실행");
-        }if(myUid == receiverId){
-          await doc.reference.update({'isRead': true,});
+        if (doc['receiverId'] == myUid) {
+          // 내가 메시지를 받는 사람인 경우
+          await doc.reference.update({'isRead': true});
         }
       }
-          print("myUid  ${myUid}");
-          print("receiverId ${receiverId}");
-      print("All messages updated successfully");
     } catch (e) {
-      print("Error updating messages: $e");
     }
   }
+
 
   String exchangeTime(DateTime time){
     String formattedTime = DateFormat('a h시 mm분').format(time);

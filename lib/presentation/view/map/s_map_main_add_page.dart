@@ -69,39 +69,40 @@ class _UserMarkerSelectPageState extends State<UserMarkerSelectPage> with FireBa
               }else if (future.hasError) {
                 // 오류 발생 시
                 return const Text("위치 정보를 불러오는 데 실패했습니다.");
-              }else{
-                final position = future.data!;
-
-                NCameraPosition cameraPosition = NCameraPosition(
-                  target: NLatLng(position.latitude,position.longitude),
-                  zoom: 13,
-                  bearing: 45,
-                  tilt: 0,
-                );
-                return NaverMap(
-                  options:  NaverMapViewOptions(
-                    initialCameraPosition: cameraPosition,
-                    nightModeEnable: true,
-                  ),
-                  onMapTapped: (x, y) {
-                    convertGPSX = y.latitude;
-                    convertGPSY = y.longitude;
-                    convertLocationData(y.longitude, y.latitude);
-                    setState(() {
-                      markers.add(NMarker(
-                          id: 'userMarker', position: NLatLng(y.latitude, y.longitude)));
-                      naverMapController?.addOverlayAll(markers);
-                    });
-                  },
-                  onMapReady: (controller1) {
-                    naverMapController = controller1;
-                    setState(() {
-                      naverMapController!.addOverlayAll(markers);
-                    });
-                  },
-                );
+              }else if(future.connectionState == ConnectionState.done){
+                if(future.hasData){
+                  final position = future.data!;
+                  NCameraPosition cameraPosition = NCameraPosition(
+                    target: NLatLng(position.latitude,position.longitude),
+                    zoom: 13,
+                    bearing: 45,
+                    tilt: 0,
+                  );
+                  return NaverMap(
+                    options:  NaverMapViewOptions(
+                      initialCameraPosition: cameraPosition,
+                      nightModeEnable: true,
+                    ),
+                    onMapTapped: (x, y) {
+                      convertGPSX = y.latitude;
+                      convertGPSY = y.longitude;
+                      convertLocationData(y.longitude, y.latitude);
+                      setState(() {
+                        markers.add(NMarker(
+                            id: 'userMarker', position: NLatLng(y.latitude, y.longitude)));
+                        naverMapController?.addOverlayAll(markers);
+                      });
+                    },
+                    onMapReady: (controller1) {
+                      naverMapController = controller1;
+                      setState(() {
+                        naverMapController!.addOverlayAll(markers);
+                      });
+                    },
+                  );
+                }
               }
-
+              return CustomLodeWidget.loadingWidget();
             }
           ),
           Align(

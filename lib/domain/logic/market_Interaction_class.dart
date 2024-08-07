@@ -12,14 +12,17 @@ class MarketInteractionClass with FireBaseInitialize{
     String convertString = userId.docs.first.id;
     setState(()=> isFavorite = !isFavorite);
     //favorite 즐겨찾기 데이터 추가
-    for(final m in teamList){
-      if(isFavorite == true){
-        await firestoreInit.collection("users").doc(convertString).collection("favorite").doc(docId).set(
-            {
-              "favoriteItem" : MarketData.fromJson(m.data()).toJson(),
-            });
-      }else{
-        await firestoreInit.collection("users").doc(convertString).collection("favorite").doc(docId).delete();
+    for (final m in teamList) {
+      final marketData = MarketData.fromJson(m.data()).toJson();
+      final docRef = firestoreInit.collection("users").doc(convertString).collection("favorite").doc(docId);
+      if (isFavorite) {
+        await docRef.set({
+          "favoriteItem": marketData,
+        });
+        print("추가");
+      } else {
+        await docRef.delete();
+        print("삭제");
       }
     }
   }

@@ -191,13 +191,7 @@ class _MarketDetailPageConsumerState extends ConsumerState<MarketDetailPage>
                                 colors: isFavorite ? baseColor : Colors.black,
                                 icons: Ionicons.ribbon_outline,
                                 title: "즐겨찾기",
-                                callBack: () async {
-                                  await marketInteractionClass.getFavoritePlace(
-                                      snapshot,
-                                      setState,
-                                      isFavorite,
-                                      widget.docId);
-                                },
+                                callBack: () async => await marketInteractionClass.getFavoritePlace(snapshot, setState, isFavorite, widget.docId),
                               );
                             }),
                             DetailIconText(

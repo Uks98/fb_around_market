@@ -142,8 +142,6 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize {
                                   ],
                                 ),
                               );
-                            } else if (snapshot.data!.docs.isEmpty) {
-                              return CustomLodeWidget.loadingWidget();
                             }
                             return CustomLodeWidget.loadingWidget();
                           }),
@@ -204,8 +202,6 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize {
                                   ],
                                 ),
                               );
-                            } else if (snapshot.data!.docs.isEmpty) {
-                              return CustomLodeWidget.loadingWidget();
                             }
                             return CustomLodeWidget.loadingWidget();
                           }),
@@ -263,8 +259,6 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize {
                                   ).pOnly(left: 20)
                                 ],
                               );
-                            } else if (snapshot.data!.docs.isEmpty) {
-                              return CustomLodeWidget.loadingWidget();
                             }
                             return CustomLodeWidget.loadingWidget();
                           }),

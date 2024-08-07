@@ -13,12 +13,12 @@ class AllPlaceMapData{
     return future.connectionState == ConnectionState.waiting;
   }
   ///마켓의 세부정보가 담겨있는 스트림을 가져옵니다.
-  List<dynamic> allMarketData(AsyncSnapshot snapshot) {
-    return snapshot.data?.docs.map((e) {
-      final data = e.data();
-      return MarketData.fromJson(data).copyWith(markerId: data["markerId"]);
-    }).toList() ?? [] as MarketData;
-  }
+  List<MarketData> allMarketData(AsyncSnapshot snapshot) {
+     return snapshot.data?.docs.map<MarketData>((e) {
+       final data = e.data();
+       return MarketData.fromJson(data).copyWith(markerId: data["markerId"]);
+     }).toList() ?? [];
+   }
 /// 메인 페이지에 마커를 선택할 시 상세페이지로 이동하는데 사용 되는 함수입니다.
   void goDetailPageAtAllPlaceMapMarker(NMarker marker, BuildContext context, geoPointX, geoPointY, Map<String, dynamic> markerData, QueryDocumentSnapshot<Map<String, dynamic>> doc, int distance) {
     marker.setOnTapListener(
