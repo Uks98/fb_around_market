@@ -4,10 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_around_market/common/color/color_box.dart';
 import 'package:fb_around_market/common/size_valiable/utill_size.dart';
 import 'package:fb_around_market/data/chat_favorite_data.dart';
-import 'package:fb_around_market/domain/model/market_add_data/map_marker_data.dart';
 import 'package:fb_around_market/presentation/service/char_data_service/chat_get_send_service.dart';
 import 'package:fb_around_market/presentation/view/chat/s_image_detail.dart';
-import 'package:fb_around_market/presentation/view/chat/w_chat_room_tile.dart';
 import 'package:fb_around_market/ropository/firs_base_mixin/fire_base_queue.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +16,7 @@ import 'package:velocity_x/velocity_x.dart';
 
 import '../../../domain/logic/image_compress.dart';
 import '../../widget/w_dialog_list_widget.dart';
+import '../my_page/widgets/w_favorite_widget.dart';
 
 class UserChatPage extends StatefulWidget {
   const UserChatPage(
@@ -25,12 +24,14 @@ class UserChatPage extends StatefulWidget {
       required this.senderEmail,
       required this.receiverID,
       required this.receiverUserImage,
-      required String docId});
+      required String docId,
+        required this.receiverEmail
+      });
 
   final String senderEmail;
   final String receiverID; //uid
   final String? receiverUserImage;
-
+  final String? receiverEmail;
   @override
   State<UserChatPage> createState() => _UserChatPageState();
 }
@@ -42,7 +43,6 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
   FocusNode myFocusNode = FocusNode();
   Uint8List? imageData; // 라이브러리를 사용해서 이미지를 저장할때 사용하는 변수
   String? userChatImage; //유저가 보낸 채팅창에 이미지
-
   XFile? image;
   final favorite = Favorite(
     marketName: "1",
@@ -85,6 +85,7 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
   }
 
   final TextEditingController _messageController = TextEditingController();
+  ///즐겨찾기에 저장된 내 길거리음식점을 상대방에게 전송해 주는 기능
   Future<void> sendUserFavorite() async {
     if (_messageController.text.isNotEmpty) {
       // 메세지 보내기
@@ -94,6 +95,7 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
     readMessage();
     scrollDown();
   }
+  ///메세지 전송
   void sendMessage() async {
     if (_messageController.text.isNotEmpty) {
       //메세지 보내기
@@ -110,7 +112,7 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
     readMessage();
     scrollDown();
   }
-
+///읽음 안읽음 표시
   void readMessage() async =>
       _chatService.readAllMessages(chatRoomIds(), widget.receiverID);
   final ScrollController _scrollController = ScrollController();
@@ -119,10 +121,12 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
       _scrollController.animateTo(_scrollController.position.maxScrollExtent,
           duration: const Duration(seconds: 1), curve: Curves.fastOutSlowIn);
 
+
   @override
   void initState() {
     super.initState();
     readMessage();
+    print("${widget.senderEmail}");
     myFocusNode.addListener(() {
       if (myFocusNode.hasFocus) {
         Future.delayed(const Duration(milliseconds: 500), () => scrollDown());
@@ -159,9 +163,11 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
         bool isReadChat,
         String userImage,
         String senderId,
-        String receiverId) {
-      String nullUserImage =
-          "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=";
+        String receiverId,
+        dynamic favoriteItem,
+        String senderEmail,
+        ) {
+      String nullUserImage = "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=";
       String exchangeTime = _chatService.exchangeTime(time);
       bool notCurrentUser = !isCurrentUser;
       return Row(
@@ -193,6 +199,7 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
             ],
           ),
           WidthBox(smallWidth),
+          //챗 버블
           ChatBubble(
                   backGroundColor:
                       notCurrentUser ? Colors.grey[100] : baseColor,
@@ -201,36 +208,22 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
                       type: notCurrentUser
                           ? BubbleType.receiverBubble
                           : BubbleType.sendBubble),
-                  child: userImage == ""
-                      ? message.text
-                          .color(notCurrentUser ? Colors.black : Colors.white)
-                          .make()
-                      : GestureDetector(
-                          onTap: () => detailImage(userImage),
-                          child: Container(
-                              padding: EdgeInsets.zero,
-                              width: 150,
-                              height: 200,
-                              child: Image.network(
-                                userImage,
-                                fit: BoxFit.cover,
-                              )),
-                        ))
-              .pOnly(right: normalWidth),
+                  child: buildMessageContent(userImage,message,notCurrentUser,favoriteItem,senderEmail).pOnly(right: normalWidth),),
           notCurrentUser
               ? exchangeTime.toString().text.size(smallFontSize).make()
               : Container(),
         ],
       ).pOnly(bottom: normalHeight);
     }
-
+    ///채팅이 전송되면 위젯 실행되는 함수
     Widget _buildMessageItem(DocumentSnapshot doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       bool isCurrentUser =
           data["senderId"] == fireBaseAuthInit.currentUser!.uid;
       final messageTime = data["timeStamp"].toDate();
-      var alignment =
-          isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
+      final favoriteItem = data["favorite"];
+      var alignment =isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
+      //receiverEmail = data["senderEmail"];
       return Container(
         alignment: alignment,
         child: _chatBubble(
@@ -241,7 +234,10 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
             data["isRead"],
             data["userImage"],
             data["senderId"],
-            data["receiverId"]),
+            data["receiverId"],
+            favoriteItem,
+            data["senderEmail"]
+        ),
       );
     }
 
@@ -262,15 +258,15 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
           return ListView(
             controller: _scrollController,
             children: snapshot.data!.docs
-                .map(
-                  (doc) => _buildMessageItem(doc),
-                )
+                .map((doc) {
+                  return _buildMessageItem(doc);
+                },)
                 .toList(),
           );
         },
       );
     }
-
+///채팅 입력 창
     Widget _buildUserInput() {
       return Row(
         children: [
@@ -301,8 +297,9 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
               builder: (BuildContext context) {
                 return CustomAlertDialog(
                   receiverId: widget.receiverID,
-                  senderEmail: widget.senderEmail,
-                  callback: sendUserFavorite,
+                  receiverEmail: widget.receiverEmail ?? "",
+                   readMessage: readMessage,
+                   scrollDown: scrollDown,
                 );
               },
             ),
@@ -343,4 +340,37 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
       ).p(bigHeight),
     );
   }
+  Widget buildMessageContent(String userImage,String message,bool notCurrentUser,dynamic favoriteItem,String senderId) {
+    if (userImage == "") {
+      return message.text
+          .color(notCurrentUser ? Colors.black : Colors.white)
+          .make();
+    } else if(favoriteItem["imagePath"] != "1"){
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          "${senderId}님이 추천하는 장소".text.color(Colors.white).fontWeight(FontWeight.bold).make(),
+          FavoriteWidget(
+            imagePath: favoriteItem["imagePath"].toString().replaceAll("(", "").replaceAll(")", ""),
+            categories:favoriteItem["categories"],
+            marketName:favoriteItem["marketName"],
+            kindOfCash:favoriteItem["kindOfCash"],
+          ),
+        ],
+      );
+    } {
+      return GestureDetector(
+        onTap: () => detailImage(userImage),
+        child: Container(
+          padding: EdgeInsets.zero,
+          width: 150,
+          height: 200,
+          child: Image.network(
+            userImage,
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    }
+    }
 }

@@ -10,16 +10,16 @@ import '../../service/char_data_service/chat_get_send_service.dart';
 String? docId;
 class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
   ChatRoomTile(
-      {super.key, required this.userDataImage, required this.senderEmail, required this.userID});
+      {super.key, required this.userDataImage, required this.senderEmail, required this.userID,required this.receiverEmail});
 
   final String? userDataImage;
   final String? senderEmail;
   final String? userID;
-
+  final String? receiverEmail;
   @override
   Widget build(BuildContext context) {
-    String senderId = fireBaseAuthInit.currentUser!.uid;
 
+    String senderId = fireBaseAuthInit.currentUser!.uid;
     final ids = [userID, senderId];
     ids.sort();
     ids.join("_");
@@ -30,13 +30,15 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
       onTap: () =>
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) =>
-                  UserChatPage(
+              builder: (context) {
+                return UserChatPage(
                     senderEmail: senderEmail ?? "", //email
                     receiverID: userID ?? "", //uid
                     receiverUserImage: userDataImage ?? "",
-                    docId : docId ?? ""
-                  ),
+                    docId : docId ?? "",
+                    receiverEmail: receiverEmail,
+                  );
+              },
             ),
           ),
       child: Row(

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import '../../../common/color/color_box.dart';
@@ -13,44 +14,79 @@ import '../../widget/notification_widget/w_toast_notification.dart';
 import '../../widget/w_login_container_widget.dart';
 import 'login_riv_state.dart';
 
-class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
-
-  LoginIntegratedPage({super.key});
-
+class LoginIntegratedPage extends ConsumerStatefulWidget {
+  const LoginIntegratedPage({super.key});
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
-    final _formKey = GlobalKey<FormState>();
-    TextEditingController emailTextController = TextEditingController();
-    TextEditingController pwdTextController = TextEditingController();
+  _LoginIntegratedPageState createState() => _LoginIntegratedPageState();
+}
 
-    Future<UserCredential?> emailSignIn(String email, String password) async {
+class _LoginIntegratedPageState extends ConsumerState<LoginIntegratedPage> with FireBaseInitialize {
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController emailTextController = TextEditingController();
+  TextEditingController pwdTextController = TextEditingController();
+
+  Future<UserCredential?> emailSignIn(String email, String password) async {
+    try {
+      final credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      // 로그인 성공 시 로그인 정보 저장
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('email', email);
+      await prefs.setString('password', password);
+      await prefs.setBool("isAutoLogin", true);
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "user-not-found") {
+        ToastNotification.warningToast("일치하는 사용자가 없습니다 😅");
+      } else if (e.code == "wrong-password") {
+        ToastNotification.warningToast("비밀번호가 일치하지 않습니다 😅");
+      }
+    } catch (e) {
+      ToastNotification.warningToast("로그인 정보를 확인해주세요 😅");
+    }
+    return null;
+  }
+
+  Future<UserCredential?> signInWithGoogle() async {
+    userCredentialWithGoogle = fireBaseAuthInit.currentUser?.uid ?? "";
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser
+        ?.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+    //print("어센티피케이션 ${}");
+
+    return await FirebaseAuth.instance.signInWithCredential(credential);;
+  }
+  Future<void> _checkLogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? email = prefs.getString('email');
+    String? password = prefs.getString('password');
+    if (email != null && password != null) {
       try {
-        final credential = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: email, password: password);
-        return credential;
-      } on FirebaseAuthException catch (e) {
-        if (e.code == "user-not-found") {
-          ToastNotification.warningToast("일치하는 사용자가 없습니다 😅");
-        } else if (e.code == "wrong-password") {
-          ToastNotification.warningToast("비밀번호가 일치하지 않습니다 😅");
+        emailSignIn(email,password);
+        if(context.mounted){
+          context.pushNamed("main");
         }
       } catch (e) {
-        ToastNotification.warningToast("로그인 정보를 확인해주세요 😅");
+        print('Auto-login failed: $e');
       }
+    } else {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => LoginIntegratedPage()));
     }
-    Future<UserCredential?> signInWithGoogle()async{
-      userCredentialWithGoogle = fireBaseAuthInit.currentUser?.uid ?? "";
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+  }
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-      //print("어센티피케이션 ${}");
-
-      return await FirebaseAuth.instance.signInWithCredential(credential);;
-    }
+ @override
+  void initState() {
+    super.initState();
+    _checkLogin();
+  }
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: baseColor,
       resizeToAvoidBottomInset: false,
@@ -132,9 +168,7 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                         callback: ()async {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
-                            final result = await emailSignIn(
-                                emailTextController.text.trim(),
-                                pwdTextController.text.trim());
+                            final result = await emailSignIn(emailTextController.text.trim(), pwdTextController.text.trim());
                             if (result == null) {
                               if(context.mounted){
                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("로그인 실패"),),);
@@ -150,7 +184,8 @@ class LoginIntegratedPage extends ConsumerWidget with FireBaseInitialize {
                       );
                     }
                 );
-              }),
+              },
+              ),
             ),
             LoginContainer(loginSite: '구글 계정으로 로그인', containerColor: Colors.white,textColor: Colors.black,
             isLabel: true,

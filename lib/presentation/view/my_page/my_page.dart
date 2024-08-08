@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:fb_around_market/presentation/view/my_page/widgets/w_achivement_widgets.dart';
 import 'package:fb_around_market/presentation/view/my_page/widgets/w_favorite_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import '../../../common/color/color_box.dart';
@@ -25,7 +27,14 @@ class MyPage extends StatefulWidget {
 class _MyPageState extends State<MyPage> with FireBaseInitialize {
   MyPageStreamLogic myPageStreamLogic =
       MyPageStreamLogic(); // mypage에 사용되는 stream 관련 로직
-
+  Future<void> signOut() async {
+    await fireBaseAuthInit.signOut();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('email');
+    await prefs.remove('password');
+    await prefs.remove("isAutoLogin");
+    context.push("/login");
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,9 +49,7 @@ class _MyPageState extends State<MyPage> with FireBaseInitialize {
         centerTitle: true,
         actions: [
           IconButton(
-              onPressed: () async {
-                await fireBaseAuthInit.signOut();
-              },
+              onPressed: () async => await signOut(),
               icon: const Icon(
                 Ionicons.log_in_outline,
                 size: 30,

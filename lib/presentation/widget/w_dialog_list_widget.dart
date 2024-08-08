@@ -7,10 +7,12 @@ import '../../data/chat_favorite_data.dart';
 import '../view/my_page/widgets/w_favorite_widget.dart';
 
 class CustomAlertDialog extends StatelessWidget {
-    CustomAlertDialog({super.key,required this.senderEmail,required this.callback,required this.receiverId});
-  final String senderEmail;
-  final Future<void> Function() callback;
+    CustomAlertDialog({super.key,required this.receiverEmail,required this.receiverId,required this.readMessage,required this.scrollDown});
+  final String receiverEmail;
   final String receiverId;
+  VoidCallback readMessage;
+  VoidCallback scrollDown;
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -24,7 +26,7 @@ class CustomAlertDialog extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(child: _buildUserLikeList(senderEmail),),
+            Expanded(child: _buildUserLikeList(receiverEmail),),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -36,10 +38,10 @@ class CustomAlertDialog extends StatelessWidget {
       ),
     );
   }
-  Widget _buildUserLikeList(String senderEmail) {
+  Widget _buildUserLikeList(String receiverEmail) {
     final ChatService _chatService = ChatService();
     return StreamBuilder(
-      stream: _chatService.getLikeUserList(senderEmail),
+      stream: _chatService.getLikeUserList(receiverEmail),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return "error !".text.make();
@@ -62,6 +64,8 @@ class CustomAlertDialog extends StatelessWidget {
                     kindOfCash: doc["favoriteItem"]["kindOfCash"][0],
                   ).toJson()
                   );
+                  readMessage();
+                  scrollDown();
                   Navigator.of(context).pop();
                 },
                 child: FavoriteWidget(

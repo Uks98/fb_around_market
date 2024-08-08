@@ -52,9 +52,9 @@ class ChatService with FireBaseInitialize{
         .snapshots();
   }
 
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getLikeUserList(String senderEmail) {
-    final favorites = firestoreInit.collection("users").doc("aa@naver.com")
+ ///사용자가 즐겨찾기한 맛집 리스트를 제공합니다.
+  Stream<QuerySnapshot<Map<String, dynamic>>> getLikeUserList(String receiverEmail) {
+    final favorites = firestoreInit.collection("users").doc(receiverEmail)
         .collection("favorite").snapshots();
     return favorites;
   }

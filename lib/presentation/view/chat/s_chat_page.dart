@@ -11,6 +11,8 @@ class ChatPage extends StatelessWidget with FireBaseInitialize {
 
   @override
   Widget build(BuildContext context) {
+    String? receiverEmail;
+    final userUid = fireBaseAuthInit.currentUser!.uid;
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,16 +29,21 @@ class ChatPage extends StatelessWidget with FireBaseInitialize {
                     ConnectionState.waiting) {
                   return "loding . . .".text.make();
                 }
-                return ListView(
-                  children: snapshot.data!.docs
-                      .map(
-                        (doc) => ChatRoomTile(
-                          userDataImage: doc["profileImage"],
-                          senderEmail: doc["userId"], //email
-                          userID: doc["userUid"] ?? "", //uid
-                        ),
-                      )
-                      .toList(),
+                return ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var doc = snapshot.data!.docs[index];
+                    final isReceiverUid = userUid == doc["userUid"];
+                    if(isReceiverUid){
+                      receiverEmail = doc["userId"];
+                    }
+                    return ChatRoomTile(
+                      userDataImage: doc["profileImage"],
+                      senderEmail: doc["userId"], // email
+                      userID: doc["userUid"] ?? "",
+                      receiverEmail: receiverEmail,// uid
+                    );
+                  },
                 );
               },
             ),

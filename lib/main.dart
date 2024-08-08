@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'common/color/color_box.dart';
 
@@ -28,42 +29,43 @@ void main() async{
   );
   await FirebaseApi().initNotifications();
   await NaverMapSdk.instance.initialize(clientId: 'fyu8vwn1ij');
-  runApp(ProviderScope(child: MyApp()));
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? email = prefs.getString('email');
+  runApp(ProviderScope(child: MyApp(initialRoute: email != null ? '/' : '/login',)));
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-  final router = GoRouter(initialLocation: "/login",routes:[
-      GoRoute(path: '/login',name: "login", builder: (context, state) => LoginIntegratedPage()),
-    GoRoute(
-      name: "setUserProfile",
-        path: '/setUserProfile', builder: (context, state) => const SignUpUserProfileSetPage(),
-      routes: [
-        //네임드에는 파라미터 못받음 , named push 사용할 경우에도 path에 사용
-        GoRoute(path: "signUpName/:userProfile",
-          name: "signUpName",
-          builder: (context, state) => SignUpAddNamePage(
-          userProfile: state.pathParameters["userProfile"],
-        ),
-        ),
-        GoRoute(path: "password/:userId/:userImage",
-          name: "password",
-          builder: (context, state) => SignUpAddPassWordPage(
-            userImage: state.pathParameters["userImage"],
-            userId: state.pathParameters["userId"] ?? "이름 없음",
-
-          ),),
-      ],
-    ),
-    GoRoute(
-        name: "main",
-        path: '/', builder: (context, state) => const MainPage()),
-  ],
-
-  );
-  // This widget is the root of your application.
+  final String initialRoute;
+   MyApp({super.key, required this.initialRoute});
   @override
   Widget build(BuildContext context) {
+    final router = GoRouter(initialLocation: initialRoute,routes:[
+      GoRoute(path: '/login',name: "login", builder: (context, state) => const LoginIntegratedPage()),
+      GoRoute(
+        name: "setUserProfile",
+        path: '/setUserProfile', builder: (context, state) => const SignUpUserProfileSetPage(),
+        routes: [
+          //네임드에는 파라미터 못받음 , named push 사용할 경우에도 path에 사용
+          GoRoute(path: "signUpName/:userProfile",
+            name: "signUpName",
+            builder: (context, state) => SignUpAddNamePage(
+              userProfile: state.pathParameters["userProfile"],
+            ),
+          ),
+          GoRoute(path: "password/:userId/:userImage",
+            name: "password",
+            builder: (context, state) => SignUpAddPassWordPage(
+              userImage: state.pathParameters["userImage"],
+              userId: state.pathParameters["userId"] ?? "이름 없음",
+
+            ),),
+        ],
+      ),
+      GoRoute(
+          name: "main",
+          path: '/', builder: (context, state) => const MainPage()),
+    ],
+    );
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
