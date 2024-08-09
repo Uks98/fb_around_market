@@ -218,8 +218,7 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
     ///채팅이 전송되면 위젯 실행되는 함수
     Widget _buildMessageItem(DocumentSnapshot doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      bool isCurrentUser =
-          data["senderId"] == fireBaseAuthInit.currentUser!.uid;
+      bool isCurrentUser = data["senderId"] == fireBaseAuthInit.currentUser!.uid;
       final messageTime = data["timeStamp"].toDate();
       final favoriteItem = data["favorite"];
       var alignment =isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
@@ -300,6 +299,7 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
                   receiverEmail: widget.receiverEmail ?? "",
                    readMessage: readMessage,
                    scrollDown: scrollDown,
+
                 );
               },
             ),
@@ -349,7 +349,7 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          "${senderId}님이 추천하는 장소".text.color(Colors.white).fontWeight(FontWeight.bold).make(),
+          "${senderId}님이 추천하는 장소".text.color(notCurrentUser ? Colors.grey[600] : Colors.white).fontWeight(FontWeight.bold).make().pOnly(left: smallWidth,bottom: smallHeight),
           FavoriteWidget(
             imagePath: favoriteItem["imagePath"].toString().replaceAll("(", "").replaceAll(")", ""),
             categories:favoriteItem["categories"],

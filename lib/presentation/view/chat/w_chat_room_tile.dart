@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fb_around_market/common/color/color_box.dart';
 import 'package:fb_around_market/common/size_valiable/utill_size.dart';
 import 'package:fb_around_market/presentation/view/chat/s_user_chat_page.dart';
 import 'package:fb_around_market/ropository/firs_base_mixin/fire_base_queue.dart';
@@ -18,7 +19,6 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
   final String? receiverEmail;
   @override
   Widget build(BuildContext context) {
-
     String senderId = fireBaseAuthInit.currentUser!.uid;
     final ids = [userID, senderId];
     ids.sort();
@@ -61,6 +61,8 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
               lastMessageWidget(_chatService, idd),
             ],
           ),
+          ///사용자가 읽지않은 메세지를 표시하는 위젯입니다.
+          getCurrentNotReadWidget(_chatService,idd).pOnly(left: 10)
         ],
       ).pOnly(top: normalHeight),
 
@@ -68,9 +70,23 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
 
     );
   }
-
-  StreamBuilder<QuerySnapshot<Map<String, dynamic>>> lastMessageWidget(
-      ChatService _chatService, String idd) {
+  StreamBuilder<QuerySnapshot<Map<String, dynamic>>> getCurrentNotReadWidget(ChatService _chatService, String idd) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: _chatService.getUnreadMessagesCount(idd),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return "".text.size(smallFontSize-3).color(Colors.grey[700]).make();
+        }
+        final doc = snapshot.data!.docs.length;
+        return VxBox(child: doc.toString().text.center.size(3).color(Colors.white).make()).roundedFull.color(baseColor).padding(EdgeInsets.all(smallHeight)).make();
+      },
+    );
+  }
+  ///채팅방 내 가장 마지막에 보낸 메세지를 표시합니다.
+  StreamBuilder<QuerySnapshot<Map<String, dynamic>>> lastMessageWidget(ChatService _chatService, String idd) {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: _chatService.getLastMessageStream(idd),
       builder: (context, snapshot) {
@@ -93,3 +109,4 @@ class ChatRoomTile extends StatelessWidget with FireBaseInitialize {
     );
   }
 }
+

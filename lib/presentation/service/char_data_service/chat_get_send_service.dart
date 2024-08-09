@@ -81,6 +81,18 @@ class ChatService with FireBaseInitialize{
       print(e);
     }
   }
+  Stream<QuerySnapshot<Map<String, dynamic>>> getUnreadMessagesCount(String chatRoomId) {
+    final String myUid = fireBaseAuthInit.currentUser!.uid;
+
+    // Firestore snapshots 사용하여 실시간으로 변화를 감지하는 Stream 반환
+    return firestoreInit
+        .collection("chat_rooms")
+        .doc(chatRoomId)
+        .collection("message")
+        .where('isRead', isEqualTo: false)
+        .where('receiverId', isEqualTo: myUid)
+        .snapshots();
+  }
 
 
   String exchangeTime(DateTime time){
