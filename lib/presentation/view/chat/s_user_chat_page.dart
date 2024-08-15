@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import '../../../domain/logic/image_compress.dart';
@@ -25,13 +26,13 @@ class UserChatPage extends StatefulWidget {
       required this.receiverID,
       required this.receiverUserImage,
       required String docId,
-        required this.receiverEmail
-      });
+      required this.receiverEmail});
 
   final String senderEmail;
-  final String receiverID; //uid
+  final String? receiverID; //uid
   final String? receiverUserImage;
   final String? receiverEmail;
+
   @override
   State<UserChatPage> createState() => _UserChatPageState();
 }
@@ -51,8 +52,22 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
     imagePath: "1",
   );
 
+  Future<String> getReceiverId() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      // Return the email or a default value if it's null
+      return prefs.getString('email') ?? "defaultReceiverId";
+    } catch (error) {
+      // Handle any errors that might occur during access
+      print('Error accessing SharedPreferences: $error');
+      return "defaultReceiverId"; // Fallback value
+    }
+  }
+
   //이미지를 firestorage에 저장하는 함수
   Future<void> saveUserChatImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? email = prefs.getString('email');
     final ComplexImageLogicBox _imageCompress = ComplexImageLogicBox();
     final storage = FirebaseStorage.instance;
     final storageRef = storage.ref("userChatImage/").child(
@@ -60,7 +75,10 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
     final compressImage = await _imageCompress.imageCompressList(imageData!);
     await storageRef.putData(compressImage);
     userChatImage = await storageRef.getDownloadURL();
-    await _chatService.sendMessage(widget.receiverID, _messageController.text.toString(), userChatImage, favorite.toJson());
+    await _chatService.sendMessage(widget.receiverID ?? email ?? "",
+        _messageController.text.toString(), userChatImage, favorite.toJson());
+    readMessage();
+    scrollDown();
   }
 
   ///이미지를 갤러리나 카메라에서 가져오는 함수
@@ -85,42 +103,56 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
   }
 
   final TextEditingController _messageController = TextEditingController();
+
   ///즐겨찾기에 저장된 내 길거리음식점을 상대방에게 전송해 주는 기능
   Future<void> sendUserFavorite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? email = prefs.getString('email');
     if (_messageController.text.isNotEmpty) {
       // 메세지 보내기
-      await _chatService.sendMessage(widget.receiverID, _messageController.text.toString(), "", favorite.toJson());
+      await _chatService.sendMessage(widget.receiverID ?? email ?? "",
+          _messageController.text.toString(), "", favorite.toJson());
       // 메세지 클리어_messageController.clear();
     }
     readMessage();
     scrollDown();
   }
+
   ///메세지 전송
   void sendMessage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? email = prefs.getString('email');
     if (_messageController.text.isNotEmpty) {
       //메세지 보내기
       await _chatService.sendMessage(
-          widget.receiverID, _messageController.text.toString(), "", Favorite(
-        marketName: "1",
-        kindOfCash: "1",
-        categories: "1",
-        imagePath: "1",
-      ).toJson());
+          widget.receiverID ?? email ?? "",
+          _messageController.text.toString(),
+          "",
+          Favorite(
+            marketName: "1",
+            kindOfCash: "1",
+            categories: "1",
+            imagePath: "1",
+          ).toJson());
       //메세지 클리어
       _messageController.clear();
     }
     readMessage();
     scrollDown();
   }
-///읽음 안읽음 표시
-  void readMessage() async =>
-      _chatService.readAllMessages(chatRoomIds(), widget.receiverID);
+
+  ///읽음 안읽음 표시
+  void readMessage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? email = prefs.getString('email');
+    _chatService.readAllMessages(chatRoomIds(), widget.receiverID ?? email!);
+  }
+
   final ScrollController _scrollController = ScrollController();
 
   void scrollDown() =>
       _scrollController.animateTo(_scrollController.position.maxScrollExtent,
           duration: const Duration(seconds: 1), curve: Curves.fastOutSlowIn);
-
 
   @override
   void initState() {
@@ -156,18 +188,19 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
   @override
   Widget build(BuildContext context) {
     Widget _chatBubble(
-        String message,
-        Alignment alignment,
-        bool isCurrentUser,
-        DateTime time,
-        bool isReadChat,
-        String userImage,
-        String senderId,
-        String receiverId,
-        dynamic favoriteItem,
-        String senderEmail,
-        ) {
-      String nullUserImage = "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=";
+      String message,
+      Alignment alignment,
+      bool isCurrentUser,
+      DateTime time,
+      bool isReadChat,
+      String userImage,
+      String senderId,
+      String receiverId,
+      dynamic favoriteItem,
+      String senderEmail,
+    ) {
+      String nullUserImage =
+          "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o=";
       String exchangeTime = _chatService.exchangeTime(time);
       bool notCurrentUser = !isCurrentUser;
       return Row(
@@ -201,27 +234,32 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
           WidthBox(smallWidth),
           //챗 버블
           ChatBubble(
-                  backGroundColor:
-                      notCurrentUser ? Colors.grey[100] : baseColor,
-                  alignment: alignment,
-                  clipper: ChatBubbleClipper5(
-                      type: notCurrentUser
-                          ? BubbleType.receiverBubble
-                          : BubbleType.sendBubble),
-                  child: buildMessageContent(userImage,message,notCurrentUser,favoriteItem,senderEmail).pOnly(right: normalWidth),),
+            backGroundColor: notCurrentUser ? Colors.grey[100] : baseColor,
+            alignment: alignment,
+            clipper: ChatBubbleClipper5(
+                type: notCurrentUser
+                    ? BubbleType.receiverBubble
+                    : BubbleType.sendBubble),
+            child: buildMessageContent(userImage, message, notCurrentUser,
+                    favoriteItem, senderEmail)
+                .pOnly(right: normalWidth),
+          ).pOnly(right: normalWidth),
           notCurrentUser
               ? exchangeTime.toString().text.size(smallFontSize).make()
               : Container(),
         ],
       ).pOnly(bottom: normalHeight);
     }
+
     ///채팅이 전송되면 위젯 실행되는 함수
     Widget _buildMessageItem(DocumentSnapshot doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      bool isCurrentUser = data["senderId"] == fireBaseAuthInit.currentUser!.uid;
+      bool isCurrentUser =
+          data["senderId"] == fireBaseAuthInit.currentUser!.uid;
       final messageTime = data["timeStamp"].toDate();
       final favoriteItem = data["favorite"];
-      var alignment =isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
+      var alignment =
+          isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
       //receiverEmail = data["senderEmail"];
       return Container(
         alignment: alignment,
@@ -235,8 +273,7 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
             data["senderId"],
             data["receiverId"],
             favoriteItem,
-            data["senderEmail"]
-        ),
+            data["senderEmail"]),
       );
     }
 
@@ -256,16 +293,17 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
           }
           return ListView(
             controller: _scrollController,
-            children: snapshot.data!.docs
-                .map((doc) {
-                  return _buildMessageItem(doc);
-                },)
-                .toList(),
+            children: snapshot.data!.docs.map(
+              (doc) {
+                return _buildMessageItem(doc);
+              },
+            ).toList(),
           );
         },
       );
     }
-///채팅 입력 창
+
+    ///채팅 입력 창
     Widget _buildUserInput() {
       return Row(
         children: [
@@ -281,12 +319,6 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
             ),
           ),
           IconButton(
-              icon: const Icon(
-                Ionicons.camera_outline,
-                size: 25,
-              ),
-              onPressed: () => sendMessage()),
-          IconButton(
             icon: const Icon(
               Ionicons.heart_circle_outline,
               size: 25,
@@ -294,12 +326,24 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
             onPressed: () => showDialog(
               context: context,
               builder: (BuildContext context) {
-                return CustomAlertDialog(
-                  receiverId: widget.receiverID,
-                  receiverEmail: widget.receiverEmail ?? "",
-                   readMessage: readMessage,
-                   scrollDown: scrollDown,
-
+                return FutureBuilder<String>(
+                  future: getReceiverId(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator(); // Show a loading indicator while waiting
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      // snapshot.data contains the receiverId
+                      String receiverEmail = snapshot.data ?? "defaultReceiverId";
+                      return CustomAlertDialog(
+                        receiverId: widget.receiverID ?? "",
+                        receiverEmail: receiverEmail ?? "",
+                        readMessage: readMessage,
+                        scrollDown: scrollDown,
+                      );
+                    }
+                  },
                 );
               },
             ),
@@ -340,25 +384,35 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
       ).p(bigHeight),
     );
   }
-  Widget buildMessageContent(String userImage,String message,bool notCurrentUser,dynamic favoriteItem,String senderId) {
+
+  Widget buildMessageContent(String userImage, String message, bool notCurrentUser, dynamic favoriteItem, String senderId) {
     if (userImage == "") {
       return message.text
           .color(notCurrentUser ? Colors.black : Colors.white)
           .make();
-    } else if(favoriteItem["imagePath"] != "1"){
+    } else if (favoriteItem["imagePath"] != "1") {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          "${senderId}님이 추천하는 장소".text.color(notCurrentUser ? Colors.grey[600] : Colors.white).fontWeight(FontWeight.bold).make().pOnly(left: smallWidth,bottom: smallHeight),
+          "${senderId}님이 추천하는 장소"
+              .text
+              .color(notCurrentUser ? Colors.grey[600] : Colors.white)
+              .fontWeight(FontWeight.bold)
+              .make()
+              .pOnly(left: smallWidth, bottom: smallHeight),
           FavoriteWidget(
-            imagePath: favoriteItem["imagePath"].toString().replaceAll("(", "").replaceAll(")", ""),
-            categories:favoriteItem["categories"],
-            marketName:favoriteItem["marketName"],
-            kindOfCash:favoriteItem["kindOfCash"],
+            imagePath: favoriteItem["imagePath"]
+                .toString()
+                .replaceAll("(", "")
+                .replaceAll(")", ""),
+            categories: favoriteItem["categories"],
+            marketName: favoriteItem["marketName"],
+            kindOfCash: favoriteItem["kindOfCash"],
           ),
         ],
       );
-    } {
+    }
+    {
       return GestureDetector(
         onTap: () => detailImage(userImage),
         child: Container(
@@ -372,5 +426,5 @@ class _UserChatPageState extends State<UserChatPage> with FireBaseInitialize {
         ),
       );
     }
-    }
+  }
 }

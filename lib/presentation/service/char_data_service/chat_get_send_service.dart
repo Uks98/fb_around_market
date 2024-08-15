@@ -7,22 +7,22 @@ import 'package:intl/intl.dart';
 import '../../../data/messageData.dart';
 
 class ChatService with FireBaseInitialize{
-  Future<void> sendMessage(String receiverId, message, String? userChatImage,Map<String,dynamic>? favorite) async {
-    final chatUserUid = fireBaseAuthInit.currentUser!.uid;
+  Future<void> sendMessage(String senderId, message, String? userChatImage,Map<String,dynamic>? favorite) async {
+    final receiverId = fireBaseAuthInit.currentUser!.uid;
     final chatUserEmail = fireBaseAuthInit.currentUser!.email;
     final Timestamp timestamp = Timestamp.now();
     bool isRead = false; //답장을 받는 사람이 답장을 확인했는지 유무 boolean
     Message newMessage = Message(
-      senderId: chatUserUid ?? "",
+      senderId: receiverId ?? "",
       senderEmail: chatUserEmail ?? "a",
-      receiverId: receiverId ?? "",
+      receiverId: senderId ?? "",
       message: message ?? "a",
       timeStamp: timestamp,
       isRead: isRead,
       userChatImage: userChatImage ?? "",
       favorite: favorite
     );
-    List<String> ids = [chatUserUid, receiverId];
+    List<String> ids = [receiverId, senderId];
     ids.sort();
     String chatRoomId = ids.join('_');
 
@@ -53,8 +53,8 @@ class ChatService with FireBaseInitialize{
   }
 
  ///사용자가 즐겨찾기한 맛집 리스트를 제공합니다.
-  Stream<QuerySnapshot<Map<String, dynamic>>> getLikeUserList(String receiverEmail) {
-    final favorites = firestoreInit.collection("users").doc(receiverEmail)
+  Stream<QuerySnapshot<Map<String, dynamic>>> getLikeUserList(String? receiverEmail) {
+    final favorites = firestoreInit.collection("users").doc(receiverEmail ?? " ")
         .collection("favorite").snapshots();
     return favorites;
   }
