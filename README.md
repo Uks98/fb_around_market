@@ -55,6 +55,7 @@
 - 생산성과 코드의 간결함을 위해 `velocity_x` 를 적극 활용함
 
   # 📷 Screenshot
+  https://youtu.be/vPVKqOKJJ64
 
 ## 📷 로그인 및 회원가입 페이지
 
