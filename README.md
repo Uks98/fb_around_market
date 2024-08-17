@@ -55,36 +55,7 @@
 - 생산성과 코드의 간결함을 위해 `velocity_x` 를 적극 활용함
 
  🎥실행 동영상
- [ https://youtu.be/vPVKqOKJJ64](https://youtu.be/vPVKqOKJJ64
+
+https://youtu.be/vPVKqOKJJ64
 
 https://youtu.be/JJE0Mzf3V-M?si=GciSu8L-Y5NL3fr4)
-
-## 📷 로그인 및 회원가입 페이지
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/99357982-9b7a-4247-99ef-234d3d7982f2/Untitled.jpeg)
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/0eac2156-e9a7-4037-a353-6ce828f00a0e/Untitled.jpeg)
-
-## 📷 메인 페이지
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/e5de7dda-7887-43ce-b86d-f929b0b95ecf/Untitled.jpeg)
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/029ae52a-cabc-4f52-a81e-aeae260a7d8e/Untitled.jpeg)
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/a11e7382-816e-4901-ad4b-035946be5e9e/Untitled.jpeg)
-
-![Screenshot_20240424_191318.jpg](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/7d735aa7-cfd0-4489-ba27-3abc77a67d1d/Screenshot_20240424_191318.jpg)
-
-## 📷 채팅 페이지, 마이 페이지
-
-![1.jpg](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/9b906f83-b6c9-4885-a46f-f6b6a7cd9163/1.jpg)
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/46e71430-9506-4a38-8df7-5fc2c530a9a1/Untitled.jpeg)
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/85014382-8b93-4600-843b-a09c65150257/Untitled.jpeg)
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/919dd54b-1e56-4634-993d-03eccff6dddc/Untitled.jpeg)
-
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/8d4555d8-efeb-48b6-9107-95cf98ed5402/Untitled.jpeg)
-
-![2.jpg](https://prod-files-secure.s3.us-west-2.amazonaws.com/86169fb8-5603-46a3-85c1-e2da7e460ba3/c665337e-14bd-42b3-a4b8-f74a22d98034/2.jpg)
