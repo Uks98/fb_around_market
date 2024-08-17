@@ -54,8 +54,10 @@
 - `go_router`를 사용해 router를 관리하는 방법을 익힘
 - 생산성과 코드의 간결함을 위해 `velocity_x` 를 적극 활용함
 
-  # 📷 Screenshot
-  https://youtu.be/vPVKqOKJJ64
+ 🎥실행 동영상
+ [ https://youtu.be/vPVKqOKJJ64](https://youtu.be/vPVKqOKJJ64
+
+https://youtu.be/JJE0Mzf3V-M?si=GciSu8L-Y5NL3fr4)
 
 ## 📷 로그인 및 회원가입 페이지
 
