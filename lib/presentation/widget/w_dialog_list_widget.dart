@@ -27,7 +27,7 @@ class CustomAlertDialog extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(child: _buildUserLikeList(receiverEmail ?? ""),),
+            Expanded(child: _buildUserLikeList(receiverEmail ?? "s1"),),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
