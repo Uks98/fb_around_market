@@ -32,7 +32,7 @@ class CustomAlertDialog extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Close'),
+              child: const Text('Closed'),
             ),
           ],
         ),
